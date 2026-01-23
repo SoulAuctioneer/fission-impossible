@@ -25,17 +25,15 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         
-        # Create window with fullscreen scaling
-        display_flags = pygame.FULLSCREEN # pygame.SCALED
-        # if SETTINGS.FULLSCREEN:
-        #     display_flags |= pygame.FULLSCREEN
+        # Create window (native resolution, no scaling)
+        self._fullscreen = SETTINGS.FULLSCREEN
+        display_flags = pygame.FULLSCREEN if self._fullscreen else 0
         
         self.screen = pygame.display.set_mode(
             (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
             display_flags
         )
         pygame.display.set_caption(SETTINGS.TITLE)
-        self._fullscreen = SETTINGS.FULLSCREEN
         
         # Create text buffer (the "terminal")
         self.buffer = TextBuffer(SETTINGS.COLS, SETTINGS.ROWS)
@@ -71,7 +69,7 @@ class Game:
         )
         
         # Text buffer effects (character-level)
-        self.screen_flicker = ScreenFlicker(intensity=SETTINGS.EFFECT_FLICKER_INTENSITY)
+        self.screen_flicker = ScreenFlicker(intensity=SETTINGS.EFFECT_FLICKER_0_STRIKES)
         self.screen_flicker.active = SETTINGS.EFFECT_FLICKER
         
         self.static_noise = StaticNoise(intensity=SETTINGS.EFFECT_STATIC_INTENSITY)
@@ -139,7 +137,8 @@ class Game:
                         # Block ESC exit dialog in kiosk mode
                         if not self._kiosk_mode:
                             self._show_exit_modal = True
-                    elif event.key == pygame.K_F11:
+                    elif event.key in (pygame.K_F11, pygame.K_F10):
+                        # F11 or F10 toggles fullscreen (F10 for macOS where F11 is system shortcut)
                         self._toggle_fullscreen()
             
             # Don't pass events to state when modal is showing
@@ -208,9 +207,7 @@ class Game:
         """Toggle between fullscreen and windowed mode."""
         self._fullscreen = not self._fullscreen
         
-        display_flags = pygame.SCALED
-        if self._fullscreen:
-            display_flags |= pygame.FULLSCREEN
+        display_flags = pygame.FULLSCREEN if self._fullscreen else 0
         
         self.screen = pygame.display.set_mode(
             (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),

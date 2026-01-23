@@ -243,7 +243,7 @@ class PressureLocksModule(BaseModule):
                 is_marker = (gx, gy) in self.markers
                 
                 if is_player:
-                    buffer.put_char(cx, cy, '●', Color.LIGHT_GREEN)
+                    buffer.put_char(cx, cy, '■', Color.LIGHT_GREEN)
                 elif is_target:
                     buffer.put_char(cx, cy, '▲', Color.LIGHT_RED)
                 elif is_marker:
@@ -255,6 +255,6 @@ class PressureLocksModule(BaseModule):
         # Arrows span 11 chars ([◄]...[▲]...[►]), center = (28-11)//2 = 8
         arrow_y = self.y + 10
         buffer.put_string(self.x + 12, arrow_y - 1, "[▲]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 8, arrow_y, "[◄]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 16, arrow_y, "[►]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 8, arrow_y, "[<]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 16, arrow_y, "[>]", Color.LIGHT_GREEN)
         buffer.put_string(self.x + 12, arrow_y + 1, "[▼]", Color.LIGHT_GREEN)

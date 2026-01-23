@@ -37,7 +37,7 @@ class ScreenFlicker:
 class StaticNoise:
     """Adds random static characters for glitch effect."""
     
-    STATIC_CHARS = '░▒▓█▀▄▌▐■□●○'
+    STATIC_CHARS = '░▒▓█▀▄▌▐■'
     
     def __init__(self, intensity: float = 0.1):
         self.intensity = intensity

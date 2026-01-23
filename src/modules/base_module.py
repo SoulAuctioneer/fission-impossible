@@ -135,7 +135,7 @@ class BaseModule(ABC):
         buffer.put_string(self.x + 2, status_y, "STATUS:", Color.DARK_GRAY)
         
         if self.solved:
-            buffer.put_string(self.x + 10, status_y, "[●]", Color.LIGHT_GREEN)
+            buffer.put_string(self.x + 10, status_y, "[■]", Color.LIGHT_GREEN)
             buffer.put_string(self.x + 14, status_y, "NOMINAL", Color.LIGHT_GREEN)
         else:
-            buffer.put_string(self.x + 10, status_y, "[○]", Color.DARK_GRAY)
+            buffer.put_string(self.x + 10, status_y, "[·]", Color.DARK_GRAY)

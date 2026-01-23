@@ -6,9 +6,9 @@ SCREEN DIMENSIONS & LAYOUT OVERVIEW
 
 The game uses a character-based terminal display:
 
-    COLS × ROWS = 140 × 45 characters
+    COLS × ROWS = 145 × 45 characters
     CHAR_SIZE   = 8 × 16 pixels per character
-    WINDOW      = 1120 × 720 pixels
+    WINDOW      = 1160 × 720 pixels
 
 Layout regions (see game_screen.py for detailed ASCII diagram):
 
@@ -17,7 +17,7 @@ Layout regions (see game_screen.py for detailed ASCII diagram):
     │  Row 2:     Divider                                                │
     │  Row 3-33:  Main content area                                      │
     │             ├─ Cols 3-98:    Module grid (2×3, each 28×15 chars)   │
-    │             └─ Cols 103-137: Reactor status panel (35×30 chars)    │
+    │             └─ Cols 101-141: Reactor status panel (41×31 chars)    │
     │  Row 34:    Gap                                                    │
     │  Row 35-43: Edgework panel (136×9 chars)                          │
     │  Row 44:    Bottom border                                          │
@@ -42,7 +42,7 @@ class Settings:
     # ═══════════════════════════════════════════════════════════════════════════
     # These define the character grid size for the ASCII terminal display.
     # Layout depends on these values - see game_screen.py for detailed layout.
-    COLS: int = 140           # Characters wide (fits 3 modules + status panel)
+    COLS: int = 145           # Characters wide (fits 3 modules + status panel)
     ROWS: int = 45            # Characters tall (fits 2 module rows + edgework)
     
     # Character cell size (in pixels)
@@ -53,7 +53,7 @@ class Settings:
     # Calculated window size (pixels = chars × char_size)
     @property
     def WINDOW_WIDTH(self) -> int:
-        return self.COLS * self.CHAR_WIDTH    # 140 * 8 = 1120 pixels
+        return self.COLS * self.CHAR_WIDTH    # 145 * 8 = 1160 pixels
     
     @property
     def WINDOW_HEIGHT(self) -> int:
@@ -90,9 +90,14 @@ class Settings:
     
     # Text Buffer Effects (character-level, applied to TextBuffer)
     EFFECT_FLICKER: bool = True
-    EFFECT_FLICKER_INTENSITY: float = 0.0005    # 0.0-0.1, fraction of chars to flicker
+    # Flicker intensity per strike count (0.0-0.1, fraction of chars to flicker)
+    EFFECT_FLICKER_0_STRIKES: float = 0.0       # No flicker at 0 strikes
+    EFFECT_FLICKER_1_STRIKE: float = 0.0015     # Light flicker at 1 strike
+    EFFECT_FLICKER_2_STRIKES: float = 0.007    # More flicker at 2+ strikes
+    EFFECT_FLICKER_FAILURE: float = 0.015      # Heavy flicker on failure screen
     EFFECT_STATIC_NOISE: bool = True
-    EFFECT_STATIC_INTENSITY: float = 0.3      # 0.0-0.3, fraction of chars during static burst
+    EFFECT_STATIC_INTENSITY: float = 0.15      # 0.0-0.3, fraction of chars during static burst
+    EFFECT_STATIC_DURATION: float = 0.4      # Duration of static burst on strike (seconds)
     EFFECT_TEXT_SCANLINES: bool = False        # Character-level scanlines (dims every 4th row)
     EFFECT_TEXT_SCANLINES_SPEED: float = 2.0  # Rows per second (0 = static, higher = faster scroll)
 

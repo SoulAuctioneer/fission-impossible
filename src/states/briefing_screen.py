@@ -61,7 +61,7 @@ class BriefingScreen(BaseState):
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, Color.GREEN)
         
         # Header
-        header = "████  NUHAUS NUCLEAR — MAINTENANCE TERMINAL v2.4.1  ████"
+        header = "████  NUHAUS NUCLEAR - MAINTENANCE TERMINAL v2.4.1  ████"
         buffer.put_string_centered(2, header, Color.LIGHT_GREEN)
         
         # Divider
@@ -75,7 +75,7 @@ class BriefingScreen(BaseState):
         buffer.put_string_centered(center_y - 4, role_line, Color.LIGHT_CYAN)
         
         # Main instructions
-        line1 = "This screen is for your eyes ONLY."
+        line1 = "This terminal is for your eyes ONLY."
         line2 = "You CANNOT read the maintenance manual."
         
         buffer.put_string_centered(center_y - 1, line1, Color.LIGHT_YELLOW)
@@ -107,5 +107,5 @@ class BriefingScreen(BaseState):
         
         # Footer
         footer_y = buffer.height - 3
-        buffer.put_string(2, footer_y, 'NUHAUS NUCLEAR — "We\'re Glad You\'re Expendable"', Color.DARK_GRAY)
+        buffer.put_string(2, footer_y, 'NUHAUS NUCLEAR - "We\'re Glad You\'re Expendable"', Color.DARK_GRAY)
         buffer.put_string(buffer.width - 15, footer_y, "TERMINAL 7-G", Color.DARK_GRAY)

@@ -16,10 +16,10 @@ PANEL LAYOUT (136 wide × 9 tall, positioned at x=2, y=35)
     ╚══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
 SECTION POSITIONS (relative to panel x, content starts at y+2):
-    Serial plate:    x+2   (12 chars wide)
-    Batteries:       x+18  (24 chars wide, 4 slots × 6 chars each)
-    Parallel port:   x+46  (20 chars wide)
-    Indicators:      x+70  (56 chars wide, up to 8 indicators in 2 rows)
+    Serial plate:    x+3   (12 chars wide)
+    Batteries:       x+22  (24 chars wide, 4 slots × 6 chars each)
+    Parallel port:   x+53  (20 chars wide)
+    Indicators:      x+80  (56 chars wide, up to 8 indicators in 2 rows)
 
 Each section has:
     - Row 0: Label (e.g., "SERIAL NO.", "BATTERIES")
@@ -62,16 +62,16 @@ class EdgewWorkPanel:
         content_y = self.y + 2
         
         # === SERIAL NUMBER (left section) ===
-        self._render_serial_plate(buffer, self.x + 2, content_y, edgework.serial_number)
+        self._render_serial_plate(buffer, self.x + 3, content_y, edgework.serial_number)
         
         # === BATTERIES (center-left section) ===
-        self._render_batteries(buffer, self.x + 18, content_y, edgework.batteries)
+        self._render_batteries(buffer, self.x + 22, content_y, edgework.batteries)
         
         # === PARALLEL PORT (center section) ===
-        self._render_parallel_port(buffer, self.x + 46, content_y, edgework.has_parallel)
+        self._render_parallel_port(buffer, self.x + 53, content_y, edgework.has_parallel)
         
         # === INDICATORS (right section) ===
-        self._render_indicators(buffer, self.x + 70, content_y, edgework.indicators)
+        self._render_indicators(buffer, self.x + 80, content_y, edgework.indicators)
     
     def _render_serial_plate(self, buffer: "TextBuffer", x: int, y: int, serial: str):
         """Render serial number on a metal plate."""
@@ -90,8 +90,8 @@ class EdgewWorkPanel:
         buffer.put_string(x + 7, plate_y + 1, serial[3:], Color.LIGHT_YELLOW)
         
         # Rivets
-        buffer.put_char(x + 1, plate_y + 2, "◦", Color.DARK_GRAY)
-        buffer.put_char(x + 10, plate_y + 2, "◦", Color.DARK_GRAY)
+        buffer.put_char(x + 1, plate_y + 2, "o", Color.DARK_GRAY)
+        buffer.put_char(x + 10, plate_y + 2, "o", Color.DARK_GRAY)
     
     def _render_batteries(self, buffer: "TextBuffer", x: int, y: int, count: int):
         """Render battery holders with ASCII art batteries."""
@@ -130,10 +130,10 @@ class EdgewWorkPanel:
         if has_port:
             # DB-25 style parallel port (present) - compact
             buffer.put_string(x, port_y, "╔══════════════════╗", Color.LIGHT_CYAN)
-            buffer.put_string(x, port_y + 1, "║ ooooooooooooooo ║", Color.LIGHT_CYAN)
+            buffer.put_string(x, port_y + 1, "║ oooooooooooooooo ║", Color.LIGHT_CYAN)
             buffer.put_string(x, port_y + 2, "╚══════════════════╝", Color.LIGHT_CYAN)
             # Pin holes colored
-            buffer.put_string(x + 2, port_y + 1, "ooooooooooooooo", Color.DARK_GRAY)
+            buffer.put_string(x + 2, port_y + 1, "oooooooooooooooo", Color.DARK_GRAY)
             # Status
             buffer.put_string(x + 4, port_y + 3, "[INSTALLED]", Color.LIGHT_GREEN)
         else:
@@ -147,33 +147,34 @@ class EdgewWorkPanel:
         """Render indicator lights panel."""
         buffer.put_string(x, y, "INDICATOR LIGHTS", Color.DARK_GRAY)
         
-        # Panel background - compact 2 rows
+        # Panel background - 3 content rows (top padding + 2 rows of indicators)
         panel_y = y + 1
         panel_width = 56
         buffer.put_string(x, panel_y, "┌" + "─" * (panel_width - 2) + "┐", Color.LIGHT_GRAY)
         buffer.put_string(x, panel_y + 1, "│" + " " * (panel_width - 2) + "│", Color.LIGHT_GRAY)
         buffer.put_string(x, panel_y + 2, "│" + " " * (panel_width - 2) + "│", Color.LIGHT_GRAY)
-        buffer.put_string(x, panel_y + 3, "└" + "─" * (panel_width - 2) + "┘", Color.LIGHT_GRAY)
+        buffer.put_string(x, panel_y + 3, "│" + " " * (panel_width - 2) + "│", Color.LIGHT_GRAY)
+        buffer.put_string(x, panel_y + 4, "└" + "─" * (panel_width - 2) + "┘", Color.LIGHT_GRAY)
         
-        # Render indicators in 2 rows, 4 per row max
+        # Render indicators in 2 rows, 4 per row max (shifted down by 1)
         col = 0
         row = 0
         for label, lit in indicators.items():
             led_x = x + 2 + col * 13
-            led_y = panel_y + 1 + row
+            led_y = panel_y + 2 + row
             
             # LED housing and light with label
             if lit:
                 # Lit indicator - glowing LED
-                buffer.put_string(led_x, led_y, "◄", Color.LIGHT_YELLOW)
-                buffer.put_char(led_x + 1, led_y, "●", Color.LIGHT_YELLOW)
-                buffer.put_string(led_x + 2, led_y, "►", Color.LIGHT_YELLOW)
+                buffer.put_string(led_x, led_y, "<", Color.LIGHT_YELLOW)
+                buffer.put_char(led_x + 1, led_y, "■", Color.LIGHT_YELLOW)
+                buffer.put_string(led_x + 2, led_y, ">", Color.LIGHT_YELLOW)
                 buffer.put_string(led_x + 4, led_y, label, Color.WHITE)
             else:
                 # Unlit indicator - dark LED
-                buffer.put_string(led_x, led_y, "◄", Color.DARK_GRAY)
-                buffer.put_char(led_x + 1, led_y, "○", Color.DARK_GRAY)
-                buffer.put_string(led_x + 2, led_y, "►", Color.DARK_GRAY)
+                buffer.put_string(led_x, led_y, "<", Color.DARK_GRAY)
+                buffer.put_char(led_x + 1, led_y, "·", Color.DARK_GRAY)
+                buffer.put_string(led_x + 2, led_y, ">", Color.DARK_GRAY)
                 buffer.put_string(led_x + 4, led_y, label, Color.DARK_GRAY)
             
             col += 1

@@ -30,7 +30,7 @@ class StartScreen(BaseState):
         button_x = (game.buffer.width - button_width) // 2
         self.clock_in_btn = ASCIIButton(
             x=button_x,
-            y=32,
+            y=35,
             text="[ CLOCK IN ]",
             width=button_width,
             on_click=self._on_clock_in
@@ -88,37 +88,36 @@ class StartScreen(BaseState):
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, Color.GREEN)
         
         # Header
-        header = "████  NUHAUS NUCLEAR — MAINTENANCE TERMINAL v2.4.1  ████"
+        header = "████  NUHAUS NUCLEAR - MAINTENANCE TERMINAL  ████"
         buffer.put_string_centered(2, header, Color.LIGHT_GREEN)
         
         # Divider
         buffer.put_string(2, 4, "═" * (buffer.width - 4), Color.GREEN)
         
         # Shift briefing box
-        box_width = 90
+        box_width = 110
         box_x = (buffer.width - box_width) // 2
-        draw_titled_box(buffer, box_x, 6, box_width, 22, "Ω  SHIFT BRIEFING  Ω", SINGLE, Color.GREEN, Color.LIGHT_YELLOW)
+        draw_titled_box(buffer, box_x, 10, box_width, 22, "Ω  SHIFT BRIEFING  Ω", SINGLE, Color.GREEN, Color.LIGHT_YELLOW)
         
         # Briefing content
         content_x = box_x + 3
         briefing = [
             "",
-            "        ALERT: Reactor systems experiencing anomalies.",
             "",
-            "        Maintenance Room 7-G requires immediate attention.",
             "",
-            "        ──────────────────────────────────────────────────────────────",
+            "    ALERT: Reactor systems experiencing anomalies.",
             "",
-            "        TECHNICIAN: Resolve all system faults before meltdown.",
-            "        HOTLINE:    Consult the Operations Manual. Guide them through.",
             "",
-            "        ! DO NOT exceed 3 operational errors.",
-            "        ! DO NOT allow the reactor to reach critical temperature.",
-            "        ! HOTLINE crew must NOT look at the maintenance terminal.",
+            "    ───────────────────────────────────────────────────────────────────────────────────────────────",
             "",
-            "        ──────────────────────────────────────────────────────────────",
+            "    TECHNICIAN: Fix all system faults before meltdown. Do NOT look at the manual.",
+            "    HOTLINE:    Consult the Operations Manual to guide the technician. Do NOT look at the terminal.",
             "",
-            "        Manual available at:  http://localhost:8080/manual",
+            "    ! DO NOT exceed 3 operational errors or reactor will reach critical temperature.",
+            "",
+            "    ───────────────────────────────────────────────────────────────────────────────────────────────",
+            "",
+            "",
         ]
         
         for i, line in enumerate(briefing):
@@ -127,24 +126,20 @@ class StartScreen(BaseState):
                 color = Color.LIGHT_YELLOW
             if "Manual" in line:
                 color = Color.LIGHT_CYAN
-            buffer.put_string(content_x, 7 + i, line, color)
+            buffer.put_string(content_x, 11 + i, line, color)
         
         # Clock-in button
         self.clock_in_btn.render(buffer)
         
         # Instructions
         instruction = "Click CLOCK IN to begin your shift"
-        buffer.put_string_centered(36, instruction, Color.DARK_GRAY)
+        buffer.put_string_centered(39, instruction, Color.DARK_GRAY)
         
         # Blinking cursor
         if self.blink_state:
-            buffer.put_char(buffer.width // 2 + len(instruction) // 2 + 1, 36, '█', Color.LIGHT_GREEN)
+            buffer.put_char(buffer.width // 2 + len(instruction) // 2 + 1, 39, '█', Color.LIGHT_GREEN)
         
         # Footer
-        footer_y = buffer.height - 3
-        buffer.put_string(2, footer_y, 'NUHAUS NUCLEAR — "We\'re Glad You\'re Expendable"', Color.DARK_GRAY)
+        footer_y = buffer.height - 2
+        buffer.put_string(2, footer_y, 'NUHAUS NUCLEAR - "We\'re Glad You\'re Expendable"', Color.DARK_GRAY)
         buffer.put_string(buffer.width - 15, footer_y, "TERMINAL 7-G", Color.DARK_GRAY)
-        
-        # Version and status
-        buffer.put_string(2, buffer.height - 2, "ESC to quit", Color.DARK_GRAY)
-        buffer.put_string(buffer.width - 25, buffer.height - 2, "STATUS: AWAITING INPUT", Color.GREEN)

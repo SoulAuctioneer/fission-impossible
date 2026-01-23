@@ -78,6 +78,7 @@ class GameState:
         self.timer_paused = False
         self.strikes = 0
         self.temperature = 0.0
+        self.modules_total = 0  # Will be set by game screen after module generation
         self.modules_solved = 0
         self.game_over = False
         self.victory = False

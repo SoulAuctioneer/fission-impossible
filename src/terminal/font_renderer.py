@@ -46,10 +46,9 @@ class FontRenderer:
             "─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬"
             # Blocks and shading (CP437 compatible)
             "░▒▓█▀▄▌▐■"
-            # Symbols (CP437 compatible)
-            "●○◆◊▲▼◄►"
-            "←→↑↓"
-            "·•¤♦♠♣♥"
+            # Symbols (CP437 compatible - note: ●○◆◊ don't render in this font)
+            "▲▼"
+            "·♦♠♣♥"
             # Greek and math (CP437 compatible)
             "Ωφ§°±²√∞≈≡≤≥÷‼"
             # Special (CP437 compatible)

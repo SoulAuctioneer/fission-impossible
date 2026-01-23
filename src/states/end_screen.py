@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from src.states.base_state import BaseState
 from src.terminal.box_drawing import draw_box, draw_titled_box, DOUBLE, SINGLE
 from src.terminal.colors import Color
+from src.core.settings import SETTINGS
 
 if TYPE_CHECKING:
     from src.core.game import Game
@@ -34,7 +35,9 @@ class EndScreen(BaseState):
     
     def enter(self):
         """Called when entering end screen."""
-        pass
+        # Set heavy flicker for failure screen (flicker persists from game)
+        if not self.victory:
+            self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_FAILURE
     
     def update(self, dt: float):
         """Update end screen."""
@@ -51,6 +54,8 @@ class EndScreen(BaseState):
     
     def _return_to_start(self):
         """Return to start screen."""
+        # Reset flicker to calm state
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_0_STRIKES
         from src.states.start_screen import StartScreen
         self.game.state_machine.switch(StartScreen(self.game))
     
@@ -120,7 +125,7 @@ class EndScreen(BaseState):
         
         # Footer
         buffer.put_string_centered(buffer.height - 6, 
-            'NUHAUS NUCLEAR — "Powering Tomorrow, Today... Eventually"', Color.DARK_GRAY)
+            'NUHAUS NUCLEAR - "Powering Tomorrow, Today... Eventually"', Color.DARK_GRAY)
     
     def _render_failure(self, buffer: "TextBuffer"):
         """Render failure screen."""
@@ -137,12 +142,12 @@ class EndScreen(BaseState):
         buffer.put_string_centered(y, "─────────────────────────────────────", Color.DARK_GRAY)
         
         y += 2
-        buffer.put_string_centered(y, '"NuHaus Nuclear extends its condolences', Color.DARK_GRAY)
+        buffer.put_string_centered(y, '"NuHaus Nuclear extends its deepest condolences', Color.DARK_GRAY)
         y += 1
-        buffer.put_string_centered(y, 'to the family of [EMPLOYEE NAME REDACTED]."', Color.DARK_GRAY)
+        buffer.put_string_centered(y, 'to the families of [INSERT EMPLOYEE NAMES HERE]."', Color.DARK_GRAY)
         
         y += 3
-        buffer.put_string_centered(y, "Please direct all inquiries to our Legal department.", Color.DARK_GRAY)
+        buffer.put_string_centered(y, "Please direct all complaints by fax to our Legal department, Boris.", Color.DARK_GRAY)
         
         y += 2
         buffer.put_string_centered(y, "─────────────────────────────────────", Color.DARK_GRAY)

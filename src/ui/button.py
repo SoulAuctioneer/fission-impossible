@@ -124,10 +124,10 @@ class ASCIIToggle:
         
         # Draw state indicator
         if self.state:
-            indicator = "[●]"
+            indicator = "[■]"
             ind_color = Color.LIGHT_GREEN
         else:
-            indicator = "[○]"
+            indicator = "[·]"
             ind_color = Color.DARK_GRAY if not self.enabled else fg
         
         buffer.put_string(self.x, self.y, indicator, ind_color)

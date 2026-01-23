@@ -109,6 +109,33 @@ class StrikeIndicator:
         """Render strike indicators."""
         for i in range(self.max_strikes):
             if i < self.strikes:
-                buffer.put_string(self.x + i * 4, self.y, "[●]", self.lit_color)
+                buffer.put_string(self.x + i * 4, self.y, "[■]", self.lit_color)
             else:
-                buffer.put_string(self.x + i * 4, self.y, "[○]", self.unlit_color)
+                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unlit_color)
+
+
+class ModuleProgressIndicator:
+    """Module progress indicator showing solved/unsolved modules as filled squares."""
+    
+    def __init__(self, x: int, y: int, total_modules: int = 6,
+                 solved_color: int = Color.LIGHT_GREEN,
+                 unsolved_color: int = Color.DARK_GRAY):
+        self.x = x
+        self.y = y
+        self.total_modules = total_modules
+        self.solved = 0
+        self.solved_color = solved_color
+        self.unsolved_color = unsolved_color
+    
+    def set_progress(self, solved: int, total: int):
+        """Set current progress."""
+        self.solved = solved
+        self.total_modules = total
+    
+    def render(self, buffer: "TextBuffer"):
+        """Render module progress indicators."""
+        for i in range(self.total_modules):
+            if i < self.solved:
+                buffer.put_string(self.x + i * 4, self.y, "[■]", self.solved_color)
+            else:
+                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unsolved_color)

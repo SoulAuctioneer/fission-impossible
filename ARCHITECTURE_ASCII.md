@@ -1290,19 +1290,6 @@ class Game:
 
 ---
 
-## Distribution
-
-### File Size Comparison
-
-| Component | ASCII Version | Bitmap Version |
-|-----------|---------------|----------------|
-| Code | ~100 KB | ~100 KB |
-| Font | ~50 KB | ~50 KB |
-| Sprites | **0 KB** | ~2 MB |
-| Audio | ~1 MB | ~1 MB |
-| Python runtime | ~40 MB | ~40 MB |
-| **Total** | **~42 MB** | **~44 MB** |
-
 ### Build
 
 Same PyInstaller process as the bitmap version:
@@ -1311,63 +1298,3 @@ Same PyInstaller process as the bitmap version:
 pyinstaller --onefile --windowed --name=FissionImpossible \
     --add-data="assets:assets" main.py
 ```
-
----
-
-## Comparison: ASCII vs Bitmap Pygame
-
-| Aspect | ASCII/ANSI | Bitmap Pygame |
-|--------|------------|---------------|
-| **Authenticity** | ★★★★★ Perfect 80s terminal | ★★★☆☆ Good retro feel |
-| **Art required** | ★★★★★ None (just font) | ★★☆☆☆ All sprites needed |
-| **Development speed** | ★★★★★ Layout in text editor | ★★★☆☆ Need art pipeline |
-| **Visual variety** | ★★☆☆☆ Limited by charset | ★★★★☆ Full pixel art |
-| **Performance** | ★★★★★ Extremely fast | ★★★★☆ Fast |
-| **File size** | ★★★★★ Tiny | ★★★☆☆ Moderate |
-| **Accessibility** | ★★★★☆ Could support screen readers | ★★☆☆☆ Visual only |
-| **Style consistency** | ★★★★★ Impossible to mismatch | ★★★☆☆ Depends on art |
-
----
-
-## When to Choose ASCII
-
-### Perfect For:
-
-- ✅ Authentic 1980s mainframe/terminal aesthetic
-- ✅ Rapid prototyping (no art assets needed)
-- ✅ Solo developer (no artist required)
-- ✅ Maximum immersion in "terminal fiction"
-- ✅ Smallest possible file size
-- ✅ Unique visual style that stands out
-
-### Not Ideal For:
-
-- ❌ Games needing smooth graphics or animation
-- ❌ Projects where visual variety is critical
-- ❌ Audiences expecting modern graphics
-- ❌ Complex visual feedback requirements
-
----
-
-## Summary
-
-The ASCII/ANSI architecture provides:
-
-| Benefit | Details |
-|---------|---------|
-| **Zero art assets** | Everything rendered from characters |
-| **Perfect theme fit** | Looks exactly like 1980s terminal |
-| **Fast iteration** | Design screens in a text editor |
-| **Tiny footprint** | Just code + one font file |
-| **Unique aesthetic** | Stands out from other games |
-| **Native USB** | Same pyserial integration as bitmap version |
-
-This approach transforms a constraint (no graphics capability) into a feature — the game *looks* like what it *is*: a nuclear plant maintenance terminal from 1986.
-
-*"Remember: Reading is fundamental. So is not exploding."*
-
----
-
-*Document Version: 1.0*
-*Alternative Architecture — ASCII/ANSI Edition*
-*TERMINAL 7-G MAINTENANCE DOCUMENTATION*
