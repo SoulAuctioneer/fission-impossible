@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NuHaus Nuclear — Operations Manual</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #33ff33;
+            --dim-color: #1a661a;
+            --highlight-color: #55ffff;
+            --warning-color: #ffff55;
+            --error-color: #ff5555;
+            --border-color: #00aa00;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'VT323', monospace;
+            color: var(--highlight-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            color: var(--warning-color);
+            margin-top: 25px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            border: 3px double var(--border-color);
+            margin-bottom: 30px;
+        }
+        
+        .header .logo {
+            font-size: 3em;
+            color: var(--warning-color);
+        }
+        
+        .header .subtitle {
+            color: var(--dim-color);
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+        .toc {
+            background: rgba(0, 170, 0, 0.1);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            color: var(--highlight-color);
+        }
+        
+        .section {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .warning {
+            background: rgba(255, 255, 85, 0.1);
+            border-left: 4px solid var(--warning-color);
+            padding: 10px 15px;
+            margin: 15px 0;
+            color: var(--warning-color);
+        }
+        
+        .danger {
+            background: rgba(255, 85, 85, 0.1);
+            border-left: 4px solid var(--error-color);
+            padding: 10px 15px;
+            margin: 15px 0;
+            color: var(--error-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: rgba(0, 170, 0, 0.2);
+            color: var(--highlight-color);
+        }
+        
+        code {
+            background: rgba(0, 170, 0, 0.1);
+            padding: 2px 6px;
+            border: 1px solid var(--dim-color);
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 5px;
+            border: 1px solid var(--text-color);
+        }
+        
+        .color-red { background: #ff5555; }
+        .color-blue { background: #5555ff; }
+        .color-yellow { background: #ffff55; }
+        .color-white { background: #ffffff; }
+        .color-black { background: #333333; }
+        .color-green { background: #55ff55; }
+        
+        .symbol {
+            font-size: 1.5em;
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 30px);
+            gap: 2px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        
+        .grid-cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--dim-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .grid-cell.marker {
+            background: rgba(85, 255, 255, 0.3);
+        }
+        
+        .grid-cell.wall-right {
+            border-right: 3px solid var(--error-color);
+        }
+        
+        .grid-cell.wall-bottom {
+            border-bottom: 3px solid var(--error-color);
+        }
+        
+        footer {
+            text-align: center;
+            color: var(--dim-color);
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">☢ NUHAUS NUCLEAR ☢</div>
+        <h1>Operations Manual</h1>
+        <div class="subtitle">MAINTENANCE ROOM 7-G PROCEDURES</div>
+        <div class="subtitle">CLASSIFICATION: INTERNAL USE ONLY</div>
+    </div>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li>1. <a href="#intro">Introduction</a></li>
+            <li>2. <a href="#coolant">Coolant Bypass Valves</a></li>
+            <li>3. <a href="#override">Emergency Override</a></li>
+            <li>4. <a href="#vents">Vent Codes</a></li>
+            <li>5. <a href="#rods">Rod Alignment</a></li>
+            <li>6. <a href="#pressure">Pressure Locks</a></li>
+            <li>7. <a href="#terminal">Security Terminal</a></li>
+            <li>A. <a href="#appendix">Appendix: Edgework Reference</a></li>
+        </ul>
+    </div>
+
+    <section id="intro" class="section">
+        <h2>1. Introduction</h2>
+        <p>This manual contains procedures for emergency maintenance of Reactor Room 7-G systems. The <strong>TECHNICIAN</strong> operates the maintenance terminal while <strong>HOTLINE SUPPORT</strong> provides guidance using this manual.</p>
+        
+        <div class="warning">
+            ⚠ IMPORTANT: The Technician CANNOT see this manual. Hotline Support must communicate all necessary information verbally.
+        </div>
+        
+        <h3>Edgework</h3>
+        <p>Many procedures reference "edgework" - information displayed on the Reactor Status panel:</p>
+        <ul>
+            <li><strong>Serial Number:</strong> 6-character alphanumeric code (e.g., AB3CD5)</li>
+            <li><strong>Batteries:</strong> Number of backup batteries (0-4)</li>
+            <li><strong>Parallel Port:</strong> YES or NO</li>
+            <li><strong>Indicators:</strong> Labeled lights (CAR, FRK, SIG, BOB, etc.) - lit or unlit</li>
+        </ul>
+    </section>
+
+    <section id="coolant" class="section">
+        <h2>2. Coolant Bypass Valves</h2>
+        <p>The module displays 3-6 colored pipes. Close <strong>ONE</strong> valve to restore nominal flow.</p>
+        
+        <div class="danger">
+            ⚠ Closing the wrong valve causes catastrophic backpressure!
+        </div>
+        
+        <h3>Valve Colors</h3>
+        <table>
+            <tr>
+                <td><span class="color-box color-red"></span> R = Red</td>
+                <td><span class="color-box color-blue"></span> B = Blue</td>
+                <td><span class="color-box color-yellow"></span> Y = Yellow</td>
+            </tr>
+            <tr>
+                <td><span class="color-box color-white"></span> W = White</td>
+                <td><span class="color-box color-black"></span> K = Black</td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <h3>3 Valves</h3>
+        <ul>
+            <li>If no RED valves: Close valve <strong>2</strong></li>
+            <li>Otherwise, if valve 3 is WHITE: Close valve <strong>3</strong></li>
+            <li>Otherwise, if more than one BLUE valve: Close the <strong>last BLUE</strong> valve</li>
+            <li>Otherwise: Close valve <strong>3</strong></li>
+        </ul>
+        
+        <h3>4 Valves</h3>
+        <ul>
+            <li>If more than one RED valve AND serial number ends in <strong>ODD</strong> digit: Close the <strong>last RED</strong> valve</li>
+            <li>Otherwise, if valve 4 is YELLOW and no RED valves: Close valve <strong>1</strong></li>
+            <li>Otherwise, if exactly one BLUE valve: Close valve <strong>1</strong></li>
+            <li>Otherwise, if more than one YELLOW valve: Close valve <strong>4</strong></li>
+            <li>Otherwise: Close valve <strong>2</strong></li>
+        </ul>
+        
+        <h3>5 Valves</h3>
+        <ul>
+            <li>If valve 5 is BLACK AND serial number ends in <strong>ODD</strong> digit: Close valve <strong>4</strong></li>
+            <li>Otherwise, if exactly one RED valve AND more than one YELLOW valve: Close valve <strong>1</strong></li>
+            <li>Otherwise, if no BLACK valves: Close valve <strong>2</strong></li>
+            <li>Otherwise: Close valve <strong>1</strong></li>
+        </ul>
+        
+        <h3>6 Valves</h3>
+        <ul>
+            <li>If no YELLOW valves AND serial number ends in <strong>ODD</strong> digit: Close valve <strong>3</strong></li>
+            <li>Otherwise, if exactly one YELLOW valve AND more than one WHITE valve: Close valve <strong>4</strong></li>
+            <li>Otherwise, if no RED valves: Close the <strong>last</strong> valve</li>
+            <li>Otherwise: Close valve <strong>4</strong></li>
+        </ul>
+    </section>
+
+    <section id="override" class="section">
+        <h2>3. Emergency Override</h2>
+        <p>A large button with a colored label. Either <strong>PRESS</strong> (tap) or <strong>HOLD</strong> the button.</p>
+        
+        <h3>Decision Tree</h3>
+        <ol>
+            <li>If the button is <span class="color-box color-blue"></span><strong>BLUE</strong> and says "ABORT": <strong>HOLD</strong></li>
+            <li>If there are more than 1 battery and the button says "DETONATE": <strong>PRESS</strong></li>
+            <li>If the button is <span class="color-box color-white"></span><strong>WHITE</strong> and there is a <strong>lit CAR</strong> indicator: <strong>HOLD</strong></li>
+            <li>If there are more than 2 batteries and there is a <strong>lit FRK</strong> indicator: <strong>PRESS</strong></li>
+            <li>If the button is <span class="color-box color-yellow"></span><strong>YELLOW</strong>: <strong>HOLD</strong></li>
+            <li>If the button is <span class="color-box color-red"></span><strong>RED</strong> and says "HOLD": <strong>PRESS</strong></li>
+            <li>Otherwise: <strong>HOLD</strong></li>
+        </ol>
+        
+        <h3>If Holding</h3>
+        <p>When you hold the button, a colored strip will appear. Release when the countdown timer shows the correct digit:</p>
+        <table>
+            <tr><th>Strip Color</th><th>Release When Timer Contains</th></tr>
+            <tr><td><span class="color-box color-blue"></span> Blue</td><td>4</td></tr>
+            <tr><td><span class="color-box color-yellow"></span> Yellow</td><td>5</td></tr>
+            <tr><td>Any other color</td><td>1</td></tr>
+        </table>
+    </section>
+
+    <section id="vents" class="section">
+        <h2>4. Vent Codes</h2>
+        <p>Four symbols must be pressed in the correct order.</p>
+        
+        <h3>Symbol Columns</h3>
+        <p>Find the column that contains <strong>ALL FOUR</strong> symbols on the keypad. Press them in the order they appear in that column (top to bottom).</p>
+        
+        <table>
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+                <th>Column 4</th>
+                <th>Column 5</th>
+                <th>Column 6</th>
+            </tr>
+            <tr>
+                <td><span class="symbol">☢</span></td>
+                <td><span class="symbol">◎</span></td>
+                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">⚙</span></td>
+                <td><span class="symbol">✱</span></td>
+                <td><span class="symbol">⚙</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">★</span></td>
+                <td><span class="symbol">☢</span></td>
+                <td><span class="symbol">⚡</span></td>
+                <td><span class="symbol">⚠</span></td>
+                <td><span class="symbol">∅</span></td>
+                <td><span class="symbol">◎</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">◊</span></td>
+                <td><span class="symbol">℃</span></td>
+                <td><span class="symbol">℃</span></td>
+                <td><span class="symbol">∅</span></td>
+                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">∅</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">⚡</span></td>
+                <td><span class="symbol">⚠</span></td>
+                <td><span class="symbol">⚠</span></td>
+                <td><span class="symbol">✱</span></td>
+                <td><span class="symbol">⚡</span></td>
+                <td><span class="symbol">★</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">✱</span></td>
+                <td><span class="symbol">★</span></td>
+                <td><span class="symbol">✱</span></td>
+                <td><span class="symbol">◊</span></td>
+                <td><span class="symbol">⚠</span></td>
+                <td><span class="symbol">¤</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">¤</span></td>
+                <td><span class="symbol">¤</span></td>
+                <td><span class="symbol">◊</span></td>
+                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">◎</span></td>
+                <td><span class="symbol">⚡</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">℃</span></td>
+                <td><span class="symbol">∅</span></td>
+                <td><span class="symbol">★</span></td>
+                <td><span class="symbol">⚡</span></td>
+                <td><span class="symbol">☢</span></td>
+                <td><span class="symbol">©</span></td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="rods" class="section">
+        <h2>5. Rod Alignment</h2>
+        <p>Watch the flashing color sequence, then repeat it using the correct color mapping.</p>
+        
+        <div class="warning">
+            ⚠ The color you PRESS is different from the color that FLASHED!
+        </div>
+        
+        <h3>If Serial Number Contains a Vowel (A, E, I, O, U)</h3>
+        <table>
+            <tr>
+                <th>Errors</th>
+                <th>Red Flash</th>
+                <th>Blue Flash</th>
+                <th>Green Flash</th>
+                <th>Yellow Flash</th>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+            <tr>
+                <td>2+</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+            </tr>
+        </table>
+        
+        <h3>If Serial Number Does NOT Contain a Vowel</h3>
+        <table>
+            <tr>
+                <th>Errors</th>
+                <th>Red Flash</th>
+                <th>Blue Flash</th>
+                <th>Green Flash</th>
+                <th>Yellow Flash</th>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+            </tr>
+            <tr>
+                <td>2+</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="pressure" class="section">
+        <h2>6. Pressure Locks</h2>
+        <p>Navigate from the marker (●) to the target (▲) without hitting invisible walls.</p>
+        
+        <div class="danger">
+            ⚠ Hitting a wall causes a strike!
+        </div>
+        
+        <h3>Identifying the Maze</h3>
+        <p>Two reference circles (◎) appear on the grid. Find the maze below that has circles in the same positions.</p>
+        
+        <h3>Maze 1</h3>
+        <p>Markers: (0,1) and (5,2)</p>
+        <p><em>Navigate carefully around the walls shown in the full manual.</em></p>
+        
+        <h3>Maze 2</h3>
+        <p>Markers: (4,1) and (1,3)</p>
+        
+        <h3>Maze 3</h3>
+        <p>Markers: (3,3) and (5,3)</p>
+        
+        <h3>Maze 4</h3>
+        <p>Markers: (0,0) and (0,3)</p>
+        
+        <h3>Maze 5</h3>
+        <p>Markers: (4,2) and (3,5)</p>
+        
+        <h3>Maze 6</h3>
+        <p>Markers: (4,0) and (1,5)</p>
+        
+        <h3>Maze 7</h3>
+        <p>Markers: (2,0) and (3,2)</p>
+        
+        <h3>Maze 8</h3>
+        <p>Markers: (1,0) and (2,4)</p>
+        
+        <h3>Maze 9</h3>
+        <p>Markers: (0,4) and (4,4)</p>
+        
+        <div class="warning">
+            Detailed maze layouts available in the extended manual appendix.
+        </div>
+    </section>
+
+    <section id="terminal" class="section">
+        <h2>7. Security Terminal</h2>
+        <p>Cycle through letters at each position to form a valid word.</p>
+        
+        <h3>Procedure</h3>
+        <ol>
+            <li>Have the Technician read the available letters at each position</li>
+            <li>Find the word from the list below that can be formed using those letters</li>
+            <li>Tell the Technician to cycle to each correct letter</li>
+            <li>Press SUBMIT</li>
+        </ol>
+        
+        <h3>Valid Words</h3>
+        <table>
+            <tr>
+                <td>ALARM</td><td>ATOMS</td><td>BADGE</td><td>BURNS</td><td>CHAIN</td>
+            </tr>
+            <tr>
+                <td>CLEAN</td><td>CLOCK</td><td>CODES</td><td>CORES</td><td>DECAY</td>
+            </tr>
+            <tr>
+                <td>DRAIN</td><td>FUSED</td><td>GAUGE</td><td>GEARS</td><td>GUARD</td>
+            </tr>
+            <tr>
+                <td>HAZED</td><td>LEAKS</td><td>METER</td><td>NUKED</td><td>PLANT</td>
+            </tr>
+            <tr>
+                <td>POWER</td><td>SHIFT</td><td>SIREN</td><td>SMOKE</td><td>SPLIT</td>
+            </tr>
+            <tr>
+                <td>STEAM</td><td>TIMER</td><td>VALVE</td><td>VAULT</td><td>WASTE</td>
+            </tr>
+            <tr>
+                <td>WATTS</td><td></td><td></td><td></td><td></td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="appendix" class="section">
+        <h2>Appendix A: Edgework Reference</h2>
+        
+        <h3>Serial Number</h3>
+        <p>A 6-character code displayed on the Reactor Status panel (e.g., AB3CD5).</p>
+        <ul>
+            <li><strong>Contains Vowel:</strong> Check if A, E, I, O, or U appears anywhere</li>
+            <li><strong>Last Digit Odd:</strong> Check if the final digit is 1, 3, 5, 7, or 9</li>
+            <li><strong>Last Digit Even:</strong> Check if the final digit is 0, 2, 4, 6, or 8</li>
+        </ul>
+        
+        <h3>Indicators</h3>
+        <p>Labeled lights that may be LIT (on) or UNLIT (off).</p>
+        <p>Common labels: CAR, FRK, SIG, BOB, CLR, IND, MSA, NSA</p>
+        
+        <h3>Batteries</h3>
+        <p>Count of backup batteries (0-4).</p>
+        
+        <h3>Parallel Port</h3>
+        <p>Whether a parallel port connector is present (YES/NO).</p>
+    </section>
+
+    <footer>
+        <p>NUHAUS NUCLEAR — "We're Glad You're Expendable"</p>
+        <p>OPERATIONS MANUAL v2.4.1 — CLASSIFICATION: INTERNAL USE ONLY</p>
+        <p>© 1986 NuHaus Nuclear Industries. All rights reserved.</p>
+        <p><em>Note: NuHaus Nuclear is not responsible for any injury, death, or nuclear incidents resulting from improper use of this manual.</em></p>
+    </footer>
+</body>
+</html>
