@@ -1,5 +1,5 @@
 """
-Start screen - Clock-in terminal for NuHaus Nuclear.
+Start screen - Clock-in terminal for Nüclear Solutions.
 """
 import pygame
 from typing import TYPE_CHECKING
@@ -88,7 +88,7 @@ class StartScreen(BaseState):
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, Color.GREEN)
         
         # Header
-        header = "████  NUHAUS NUCLEAR - MAINTENANCE TERMINAL  ████"
+        header = "████  NÜCLEAR SOLUTIONS - MAINTENANCE TERMINAL  ████"
         buffer.put_string_centered(2, header, Color.LIGHT_GREEN)
         
         # Divider
@@ -141,5 +141,5 @@ class StartScreen(BaseState):
         
         # Footer
         footer_y = buffer.height - 2
-        buffer.put_string(2, footer_y, 'NUHAUS NUCLEAR - "We\'re Glad You\'re Expendable"', Color.DARK_GRAY)
+        buffer.put_string(2, footer_y, 'NÜCLEAR SOLUTIONS - "We-anium to Please"', Color.DARK_GRAY)
         buffer.put_string(buffer.width - 15, footer_y, "TERMINAL 7-G", Color.DARK_GRAY)

@@ -46,21 +46,24 @@ class ASCIIProgressBar:
         
         for i in range(bar_width):
             if i < int(filled):
-                # Fully filled
+                # Fully filled - use high glow for lit portion
                 char = '█'
                 color = self.fg
+                glow = 1
             elif i < filled:
-                # Partially filled (use intermediate block)
+                # Partially filled (use intermediate block) - also glow
                 frac = filled - int(filled)
                 block_idx = int(frac * 4) + 1
                 char = self.BLOCKS[min(block_idx, 4)]
                 color = self.fg
+                glow = 1
             else:
-                # Empty
+                # Empty - no glow
                 char = '░'
                 color = self.bg
+                glow = 0
             
-            buffer.put_char(start_x + i, self.y, char, color)
+            buffer.put_char(start_x + i, self.y, char, color, glow=glow)
 
 
 class TemperatureGauge(ASCIIProgressBar):
@@ -109,9 +112,11 @@ class StrikeIndicator:
         """Render strike indicators."""
         for i in range(self.max_strikes):
             if i < self.strikes:
-                buffer.put_string(self.x + i * 4, self.y, "[■]", self.lit_color)
+                # Lit indicator - use high glow
+                buffer.put_string(self.x + i * 4, self.y, "[■]", self.lit_color, glow=1)
             else:
-                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unlit_color)
+                # Unlit indicator - no glow
+                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unlit_color, glow=0)
 
 
 class ModuleProgressIndicator:
@@ -136,6 +141,8 @@ class ModuleProgressIndicator:
         """Render module progress indicators."""
         for i in range(self.total_modules):
             if i < self.solved:
-                buffer.put_string(self.x + i * 4, self.y, "[■]", self.solved_color)
+                # Solved module - use high glow
+                buffer.put_string(self.x + i * 4, self.y, "[■]", self.solved_color, glow=1)
             else:
-                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unsolved_color)
+                # Unsolved module - no glow
+                buffer.put_string(self.x + i * 4, self.y, "[·]", self.unsolved_color, glow=0)

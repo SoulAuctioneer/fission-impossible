@@ -9,10 +9,14 @@ PANEL LAYOUT (35 wide × 30 tall, positioned at x=103, y=3)
     ║                                 ║
     ║  TIME:   04:32                  ║  <- y+2: Timer display
     ║  ERRORS: [■] [■] [·]            ║  <- y+4: Strike indicators
-    ║  FIXED:  [■] [■] [■] [·] [·] [·]║  <- y+5: Module progress
-    ║  TEMP:   ▓▓▓▓▓▓▓░░░░░░░░        ║  <- y+7-8: Temperature gauge
+    ║                                 ║  <- y+5: (blank)
+    ║  FIXED:  [■] [■] [■] [·] [·] [·]║  <- y+6: Module progress
+    ║                                 ║  <- y+7: (blank)
+    ║  TEMP: ▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░ ║  <- y+8: Temperature gauge (inline)
     ║  ─────────────────────────────  ║  <- y+10: Divider
-    ║  SYSTEM LOG:                    ║  <- y+12+: Scrolling log (newest white)
+    ║  SYSTEM LOG:                    ║  <- y+12: Log header
+    ║                                 ║  <- y+14: (blank)
+    ║  > Latest message in white...   ║  <- y+15+: Scrolling log
     ║  > Latest message in white...   ║
     ║    Older messages in grey...    ║
     ╚═════════════════════════════════╝
@@ -46,41 +50,56 @@ class ReactorStatusPanel:
         # Sub-components
         self.timer = SimpleTimerDisplay(x + 10, y + 2, Color.LIGHT_GREEN)
         self.strike_indicator = StrikeIndicator(x + 10, y + 4)
-        self.module_progress = ModuleProgressIndicator(x + 10, y + 5)
-        self.temp_gauge = TemperatureGauge(x + 2, y + 8, width - 4)
+        self.module_progress = ModuleProgressIndicator(x + 10, y + 6)
+        self.temp_gauge = TemperatureGauge(x + 10, y + 8, width - 12)  # Inline, aligned with other readouts
         
         # Status messages (themed from THEME.md)
         self.status_messages = [
-            "Maintenance Terminal Online. Your predecessor's wasn't.",
             "All systems operational. Legally speaking.",
-            "REMINDER: Your life insurance paperwork is still incomplete.",
-            "Petrov would have solved this by now. We miss Petrov.",
-            "Employee of the Month: Petrov (Month 48). Status: [REDACTED]",
+            "REMINDER: Your Form 27-B (Death Waiver) remains unsigned. Please rectify.",
+            "REMINDER: Oleg is not authorized to seduce the fuel rods. Please report breaches to HR.",
             "NOTICE: Tuesday's evacuation drill cancelled due to actual emergency.",
             "The geiger counter is not a musical instrument. Please stop.",
-            "The vending machine in break room 3 has achieved sentience. Avoid.",
-            "Coffee machine is making that noise again. Do not investigate.",
+            "ALERT: Immaculate vibes detected in reactor core. System overload imminent.",
+            "REMINDER: Team meeting at 12:00AM."
+            "NOTICE: 'Cool fusion' research proposal rejected. Again. See: Incident Report #4024.",
+            "MEMO: Consulting ChatGPT for reactor calculations is NOT an approved safety protocol.",
+            "CORRECTION: Uranium isotope error detected. ChatGPT has been notified.",
             "Radiation levels within acceptable parameters. Parameters have been revised.",
-            "Your Form 27-B (Death Waiver) remains unsigned. Please rectify.",
-            "The suggestion box remains welded shut. This is for your protection.",
-            "Doris from HR is checking on something. Doris has been checking since 1974.",
-            "The fluorescent lights have always flickered. Stop asking about it.",
+            "NOTICE: 'Take his rod' is not standard reactor terminology. Please use Form 44-R.",
+            "REMINDER: Fuel rods are not face-caressing implements. See: Incident Report #4024.",
+            "Elena's safety record remains ZERO. Elena is always watching.",
+            "The vending machine in break room 3 has achieved sentience. Avoid.",
             "NOTICE: This emergency counts as your lunch break.",
-            "Previous shift logged 'strange humming.' Disregard.",
-            "FUN FACT: The reactor core is older than most employees' children.",
-            "The Safety Salamander wishes you a productive shift!",
+            "Stasia has enacted the Personal Emergency Protocol. Who's a good boss?",
+            "WARNING: Your predecessor tried Cool Fusion. Your predecessor is now a cautionary tale.",
+            "Coffee machine is making that noise again. Do not investigate.",
+            "REMINDER: These are we-anium problems, not uranium problems.",
+            "The suggestion box remains welded shut. This is for your protection.",
+            "MEMO: Sergei's retirement paperwork is 69 days overdue. Forms are accumulating.",
+            "Stasia from HR is checking on something. Stasia has been checking since 1974.",
+            "ALERT: Someone pressed The Button again. Culprit search in progress.",
+            "The fluorescent lights have always flickered. Stop asking about it.",
+            "The President's visit has been cancelled. He was informed about The Button.",
             "MEMO: Screaming in the reactor room has been resolved. Do not investigate how.",
-            "Your exposure badge is glowing. This is normal. Probably.",
-            "The window to the reactor room is NOT a door. Stop trying.",
+            "Your dosimeter is glowing. This is normal. Probably.",
+            "Sergei's Wordle streak: 1,247 days. Safety streak: Pending.",
             "REMINDER: Dying on company property requires Form 19-C in triplicate.",
             "The motivational poster is watching. Smile at the atom.",
-            "Asbestos inspection: PASSED! You're welcome.",
+            "NOTICE: 'Vibes' are not a recognized coolant. Stop trying.",
             "Tonight's mandatory fun activity has been cancelled due to fatalities.",
             "Big Oil infiltration status: unclear. Trust no one. Especially Craig.",
+            "MEMO: Oleg's fuel rods have been quarantined. Do not ask where.",
+            "WARNING: Your vibes are too strong. The reactor cannot handle this.",
             "NOTICE: The break room microwave has been confiscated for evidence.",
-            "Your predecessor's personal effects are still in locker 7-G. No rush.",
             "Temperature nominal. Ignore the smell.",
-            "The reactor's 'mood' today: pensive.",
+            "The reactor's 'mood' today: OVERWHELMED BY VIBES.",
+            "NOTICE: The next employee to yell 'take his rod' receives a write-up.",
+            "MEMO: 'Projectile dysfunction' is now the official term. Thank Elena.",
+            "NOTICE: Level 7 accidents and Level 7 personal crises use the same form.",
+            "The easy button was too easy. We should have known.",
+            "The turbines have prematurely actuated. Cleanup crew dispatched.",
+            "REMINDER: Retirement can be accelerated by pressing The Button. Not recommended.",
         ]
         self.message_index = 0
         self.message_timer = 0.0
@@ -94,12 +113,42 @@ class ReactorStatusPanel:
         # Border flash state
         self.flash_timer = 0.0
         self.flash_on = True
+        
+        # Timer flash state (separate from border)
+        self.timer_flash_timer = 0.0
+        self.timer_flash_on = True
     
     def update(self, dt: float, game_state: "GameState"):
         """Update the panel state."""
+        time_remaining = game_state.time_remaining
+        
+        # Update timer flash based on time remaining
+        # Flash faster as time gets lower: 4min=2s, 3min=1.5s, 2min=1s, 1min=0.5s, 30s=0.25s
+        if time_remaining < 30:
+            flash_interval = 0.25
+        elif time_remaining < 60:
+            flash_interval = 0.5
+        elif time_remaining < 120:
+            flash_interval = 1.0
+        elif time_remaining < 180:
+            flash_interval = 1.5
+        elif time_remaining < 240:
+            flash_interval = 2.0
+        else:
+            flash_interval = 0  # No flashing above 4 minutes
+        
+        if flash_interval > 0:
+            self.timer_flash_timer += dt
+            if self.timer_flash_timer >= flash_interval:
+                self.timer_flash_timer = 0.0
+                self.timer_flash_on = not self.timer_flash_on
+        else:
+            self.timer_flash_on = True
+            self.timer_flash_timer = 0.0
+        
         # Update timer display
-        self.timer.set_time(game_state.time_remaining)
-        self.timer.fg = self._get_timer_color(game_state.time_remaining)
+        self.timer.set_time(time_remaining)
+        self.timer.fg = self._get_timer_color(time_remaining)
         
         # Update strikes
         self.strike_indicator.set_strikes(game_state.strikes)
@@ -127,7 +176,7 @@ class ReactorStatusPanel:
         
         # Update border flash timer based on strikes
         if game_state.strikes >= 1:
-            flash_interval = 1.0 if game_state.strikes >= 2 else 2.0
+            flash_interval = 0.5 if game_state.strikes >= 2 else 1.0
             self.flash_timer += dt
             if self.flash_timer >= flash_interval:
                 self.flash_timer = 0.0
@@ -138,12 +187,27 @@ class ReactorStatusPanel:
             self.flash_on = True
     
     def _get_timer_color(self, time_remaining: float) -> int:
-        """Get timer color based on urgency."""
+        """Get timer color based on urgency, with flashing."""
+        # Determine base color based on time
+        # Dim colors are much darker for dramatic contrast
         if time_remaining < 60:
-            return Color.LIGHT_RED
+            bright_color = Color.LIGHT_RED
+            dim_color = Color.DARK_GRAY
         elif time_remaining < 120:
-            return Color.LIGHT_YELLOW
-        return Color.LIGHT_GREEN
+            bright_color = Color.LIGHT_YELLOW
+            dim_color = Color.DARK_GRAY
+        elif time_remaining < 180:
+            bright_color = Color.LIGHT_GREEN
+            dim_color = Color.DARK_GRAY
+        elif time_remaining < 240:
+            bright_color = Color.LIGHT_GREEN
+            dim_color = Color.GREEN
+        else:
+            # No flashing above 4 minutes, always bright
+            return Color.LIGHT_GREEN
+        
+        # Apply flash state
+        return bright_color if self.timer_flash_on else dim_color
     
     def _get_border_color(self, strikes: int) -> int:
         """Get border color based on current strike count, with flashing."""
@@ -170,27 +234,27 @@ class ReactorStatusPanel:
         buffer.put_string(self.x + 2, self.y + 4, "ERRORS:", Color.LIGHT_GREEN)
         self.strike_indicator.render(buffer)
         
-        # Module progress (below errors)
-        buffer.put_string(self.x + 2, self.y + 5, "SOLVED:", Color.LIGHT_GREEN)
+        # Module progress (below errors, with blank line)
+        buffer.put_string(self.x + 2, self.y + 6, "FIXED:", Color.LIGHT_GREEN)
         self.module_progress.set_progress(game_state.modules_solved, game_state.modules_total)
         self.module_progress.render(buffer)
         
-        # Temperature
-        buffer.put_string(self.x + 2, self.y + 7, "TEMP:", Color.LIGHT_GREEN)
+        # Temperature (inline with label)
+        buffer.put_string(self.x + 2, self.y + 8, "TEMP:", Color.LIGHT_GREEN)
         self.temp_gauge.render(buffer)
         
-        # Divider
+        # Divider (moved up one line)
         y = self.y + 10
         buffer.put_string(self.x + 2, y, "─" * (self.width - 4), Color.GREEN)
         
-        # Status messages (more vertical space now)
+        # Status messages (gained one line for log)
         y += 2
         self._render_status_messages(buffer, y)
     
     def _render_status_messages(self, buffer: "TextBuffer", y: int):
         """Render the scrolling status log with newest message in white."""
-        buffer.put_string(self.x + 2, y, "SYSTEM LOG:", Color.LIGHT_CYAN)
-        y += 1
+        buffer.put_string(self.x + 2, y, "MAINTENANCE LOG:", Color.LIGHT_CYAN)
+        y += 2  # Blank line after header
         
         max_width = self.width - 6
         # Calculate available lines for log (use full remaining height)

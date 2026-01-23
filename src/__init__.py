@@ -1,1 +1,1 @@
-# Fission Impossible - NuHaus Nuclear Maintenance Terminal
+# Fission Impossible - Nüclear Solutions Maintenance Terminal

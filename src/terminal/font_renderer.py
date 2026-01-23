@@ -89,13 +89,20 @@ class FontRenderer:
         
         return self._glyph_cache[key]
     
-    def render(self, buffer: "TextBuffer", target: pygame.Surface):
-        """Render the entire TextBuffer to target surface."""
+    def render(self, buffer: "TextBuffer", target: pygame.Surface, glow_surface: pygame.Surface = None):
+        """Render the entire TextBuffer to target surface.
+        
+        Args:
+            buffer: The TextBuffer to render
+            target: The main pygame Surface to render to
+            glow_surface: Optional separate surface for high-glow characters (for enhanced bloom)
+        """
         for y in range(buffer.height):
             for x in range(buffer.width):
                 char_code = buffer.chars[y, x]
                 fg = buffer.fg_colors[y, x]
                 bg = buffer.bg_colors[y, x]
+                glow_level = buffer.glow[y, x]
                 
                 px = x * self.char_width
                 py = y * self.char_height
@@ -109,14 +116,19 @@ class FontRenderer:
                 if char_code != ord(' '):  # Skip spaces for performance
                     glyph = self._get_glyph(char_code, fg)
                     target.blit(glyph, (px, py))
+                    
+                    # Also render to glow surface if high glow
+                    if glow_surface is not None and glow_level > 0:
+                        glow_surface.blit(glyph, (px, py))
     
-    def render_dirty(self, buffer: "TextBuffer", target: pygame.Surface):
+    def render_dirty(self, buffer: "TextBuffer", target: pygame.Surface, glow_surface: pygame.Surface = None):
         """Render only dirty rows (optimization)."""
         for y in buffer.get_dirty_rows():
             for x in range(buffer.width):
                 char_code = buffer.chars[y, x]
                 fg = buffer.fg_colors[y, x]
                 bg = buffer.bg_colors[y, x]
+                glow_level = buffer.glow[y, x]
                 
                 px = x * self.char_width
                 py = y * self.char_height
@@ -124,6 +136,10 @@ class FontRenderer:
                 # Clear cell
                 cell_rect = pygame.Rect(px, py, self.char_width, self.char_height)
                 pygame.draw.rect(target, ANSI_COLORS[0], cell_rect)  # Black
+                
+                # Clear glow surface cell too
+                if glow_surface is not None:
+                    pygame.draw.rect(glow_surface, (0, 0, 0), cell_rect)
                 
                 # Draw background
                 if bg != 0:
@@ -133,3 +149,7 @@ class FontRenderer:
                 if char_code != ord(' '):
                     glyph = self._get_glyph(char_code, fg)
                     target.blit(glyph, (px, py))
+                    
+                    # Also render to glow surface if high glow
+                    if glow_surface is not None and glow_level > 0:
+                        glow_surface.blit(glyph, (px, py))

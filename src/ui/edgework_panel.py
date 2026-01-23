@@ -165,15 +165,15 @@ class EdgewWorkPanel:
             
             # LED housing and light with label
             if lit:
-                # Lit indicator - glowing LED
+                # Lit indicator - glowing LED (use high glow for the lit part)
                 buffer.put_string(led_x, led_y, "<", Color.LIGHT_YELLOW)
-                buffer.put_char(led_x + 1, led_y, "■", Color.LIGHT_YELLOW)
+                buffer.put_char(led_x + 1, led_y, "■", Color.LIGHT_YELLOW, glow=1)
                 buffer.put_string(led_x + 2, led_y, ">", Color.LIGHT_YELLOW)
                 buffer.put_string(led_x + 4, led_y, label, Color.WHITE)
             else:
-                # Unlit indicator - dark LED
+                # Unlit indicator - dark LED (no glow)
                 buffer.put_string(led_x, led_y, "<", Color.DARK_GRAY)
-                buffer.put_char(led_x + 1, led_y, "·", Color.DARK_GRAY)
+                buffer.put_char(led_x + 1, led_y, "·", Color.DARK_GRAY, glow=0)
                 buffer.put_string(led_x + 2, led_y, ">", Color.DARK_GRAY)
                 buffer.put_string(led_x + 4, led_y, label, Color.DARK_GRAY)
             

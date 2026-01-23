@@ -66,6 +66,13 @@ class Game:
             refresh_speed=SETTINGS.CRT_REFRESH_SPEED,
             glow=SETTINGS.CRT_GLOW,
             glow_strength=SETTINGS.CRT_GLOW_STRENGTH,
+            indicator_glow_strength=SETTINGS.CRT_INDICATOR_GLOW_STRENGTH,
+        )
+        
+        # Glow layer surface for lit indicators (separate from main render)
+        self.glow_surface = pygame.Surface(
+            (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
+            pygame.SRCALPHA
         )
         
         # Text buffer effects (character-level)
@@ -166,6 +173,9 @@ class Game:
         # Clear render surface with black
         self.render_surface.fill(ANSI_COLORS[0])
         
+        # Clear glow layer for lit indicators
+        self.glow_surface.fill((0, 0, 0, 0))
+        
         # Render current state to text buffer
         self.state_machine.render(self.buffer)
         
@@ -178,11 +188,11 @@ class Game:
         self.static_noise.apply(self.buffer)
         self.text_scanlines.apply(self.buffer)
         
-        # Render text buffer to surface
-        self.font_renderer.render(self.buffer, self.render_surface)
+        # Render text buffer to surface (also renders high-glow chars to glow_surface)
+        self.font_renderer.render(self.buffer, self.render_surface, self.glow_surface)
         
-        # Apply CRT post-processing effects (pixel-level)
-        self.crt_processor.apply(self.render_surface, self._dt)
+        # Apply CRT post-processing effects (pixel-level), including indicator glow
+        self.crt_processor.apply(self.render_surface, self._dt, self.glow_surface)
         
         # Blit to screen
         self.screen.blit(self.render_surface, (0, 0))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fission Impossible - NuHaus Nuclear Maintenance Terminal
+Fission Impossible - Nüclear Solutions Maintenance Terminal
 Main entry point.
 
 "We're Glad You're Expendable."

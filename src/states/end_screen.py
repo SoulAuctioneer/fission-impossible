@@ -125,7 +125,7 @@ class EndScreen(BaseState):
         
         # Footer
         buffer.put_string_centered(buffer.height - 6, 
-            'NUHAUS NUCLEAR - "Powering Tomorrow, Today... Eventually"', Color.DARK_GRAY)
+            'NÜCLEAR SOLUTIONS - "We-anium to Please"', Color.DARK_GRAY)
     
     def _render_failure(self, buffer: "TextBuffer"):
         """Render failure screen."""
@@ -142,7 +142,7 @@ class EndScreen(BaseState):
         buffer.put_string_centered(y, "─────────────────────────────────────", Color.DARK_GRAY)
         
         y += 2
-        buffer.put_string_centered(y, '"NuHaus Nuclear extends its deepest condolences', Color.DARK_GRAY)
+        buffer.put_string_centered(y, '"Nüclear Solutions extends its deepest condolences', Color.DARK_GRAY)
         y += 1
         buffer.put_string_centered(y, 'to the families of [INSERT EMPLOYEE NAMES HERE]."', Color.DARK_GRAY)
         

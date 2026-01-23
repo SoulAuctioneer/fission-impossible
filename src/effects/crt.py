@@ -30,6 +30,7 @@ class CRTPostProcessor:
         refresh_speed: float = 200.0,
         glow: bool = True,
         glow_strength: int = 10,
+        indicator_glow_strength: int = 60,
     ):
         self.width = width
         self.height = height
@@ -43,6 +44,7 @@ class CRTPostProcessor:
         self.refresh_speed = refresh_speed
         self.glow_enabled = glow
         self.glow_strength = glow_strength
+        self.indicator_glow_strength = indicator_glow_strength  # Stronger glow for lit indicators
         
         # Dynamic state
         self._refresh_y = 0.0
@@ -109,13 +111,14 @@ class CRTPostProcessor:
         
         return surface
     
-    def apply(self, surface: pygame.Surface, dt: float) -> pygame.Surface:
+    def apply(self, surface: pygame.Surface, dt: float, glow_layer: pygame.Surface = None) -> pygame.Surface:
         """
         Apply all CRT effects to the surface.
         
         Args:
             surface: The pygame Surface to apply effects to (modified in place)
             dt: Delta time in seconds for animation
+            glow_layer: Optional surface containing only high-glow characters (lit indicators)
             
         Returns:
             The modified surface
@@ -123,6 +126,10 @@ class CRTPostProcessor:
         # 1. Apply phosphor glow (subtle brightness/color boost)
         if self.glow_enabled:
             self._apply_glow(surface)
+        
+        # 1b. Apply stronger glow to indicator layer if provided
+        if self.glow_enabled and glow_layer is not None:
+            self._apply_indicator_glow(surface, glow_layer)
         
         # 2. Apply scanlines overlay
         if self.scanlines_enabled and self._scanline_surface:
@@ -175,6 +182,34 @@ class CRTPostProcessor:
         del bloom_array  # Release surface lock
         
         # Add the bloom to the original surface
+        surface.blit(bloom_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+    
+    def _apply_indicator_glow(self, surface: pygame.Surface, glow_layer: pygame.Surface):
+        """
+        Apply stronger phosphor glow specifically to lit indicators.
+        
+        Uses the same bloom technique but with higher intensity for
+        characters marked as "lit" (high-glow), creating a bright
+        LED-like effect for indicator lights.
+        """
+        # Use a larger blur for more spread
+        blur_scale = 3
+        small_width = max(1, self.width // blur_scale)
+        small_height = max(1, self.height // blur_scale)
+        
+        # Downsample the glow layer
+        small_surface = pygame.transform.smoothscale(glow_layer, (small_width, small_height))
+        
+        # Upsample back
+        bloom_surface = pygame.transform.smoothscale(small_surface, (self.width, self.height))
+        
+        # Apply stronger intensity
+        bloom_array = pygame.surfarray.pixels3d(bloom_surface)
+        intensity_factor = self.indicator_glow_strength / 50.0
+        bloom_array[:] = np.clip(bloom_array * intensity_factor, 0, 255).astype(np.uint8)
+        del bloom_array
+        
+        # Add the indicator bloom
         surface.blit(bloom_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
     
     def _draw_refresh_line(self, surface: pygame.Surface, dt: float):

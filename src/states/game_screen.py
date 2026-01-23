@@ -5,7 +5,7 @@ SCREEN LAYOUT (140 cols × 45 rows)
 ══════════════════════════════════════════════════════════════════════════════════
 
     ╔══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-  0 ║                                     ████  NUHAUS NUCLEAR — MAINTENANCE ROOM 7-G  ████                                                    ║
+  0 ║                                     ████  NÜCLEAR SOLUTIONS — MAINTENANCE ROOM 7-G  ████                                                    ║
     ╠══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╣
     ║   ┌─────────────────────────┐    ┌─────────────────────────┐    ┌─────────────────────────┐   ║ ╔═════════════════════════════════╗   ║
     ║   │   COOLANT BYPASS        │    │   EMERGENCY OVERRIDE    │    │   VENT CODES            │   ║ ║    REACTOR STATUS               ║   ║
@@ -112,9 +112,9 @@ class GameScreen(BaseState):
         # ═══════════════════════════════════════════════════════════════════════
         
         # Reactor status panel - right side of screen
-        # Position: x=101 (after module grid), y=3 (aligned with modules)
-        # Size: 41×31 (expanded for wider log messages)
-        self.status_panel = ReactorStatusPanel(101, 3, 41, 31)
+        # Position: x=100 (after module grid), y=3 (aligned with modules)
+        # Size: 42×31 (expanded for wider log messages)
+        self.status_panel = ReactorStatusPanel(100, 3, 42, 31)
         
         # Edgework panel - bottom of screen, below module grid
         # Position: x=3 (with 2-col margin from border), y=35 (after modules end at y=33 + gap)
@@ -127,6 +127,10 @@ class GameScreen(BaseState):
         
         # Timer tick tracking (for playing tick sound each second)
         self._last_tick_second: int = -1
+        
+        # Outer border flash state
+        self._border_flash_timer = 0.0
+        self._border_flash_on = True
         
         # Register callbacks
         self.game_state.on_strike(self._on_strike)
@@ -242,6 +246,44 @@ class GameScreen(BaseState):
         else:
             self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_0_STRIKES
         
+        # Update outer border flash based on strikes and time
+        time_remaining = self.game_state.time_remaining
+        strikes = self.game_state.strikes
+        
+        # Determine flash interval - faster with more strikes or less time
+        # Base interval from strikes
+        if strikes >= 2:
+            strike_interval = 0.5
+        elif strikes >= 1:
+            strike_interval = 1.0
+        else:
+            strike_interval = 0.0  # No flash from strikes alone
+        
+        # Time-based interval (overrides if faster)
+        if time_remaining < 30:
+            time_interval = 0.2
+        elif time_remaining < 60:
+            time_interval = 0.4
+        elif time_remaining < 120:
+            time_interval = 0.8
+        else:
+            time_interval = 0.0  # No flash from time alone
+        
+        # Use the faster of the two (smaller non-zero interval)
+        if strike_interval > 0 and time_interval > 0:
+            flash_interval = min(strike_interval, time_interval)
+        else:
+            flash_interval = strike_interval or time_interval
+        
+        if flash_interval > 0:
+            self._border_flash_timer += dt
+            if self._border_flash_timer >= flash_interval:
+                self._border_flash_timer = 0.0
+                self._border_flash_on = not self._border_flash_on
+        else:
+            self._border_flash_on = True
+            self._border_flash_timer = 0.0
+        
         # Update modules
         for module in self.modules:
             module.update(dt)
@@ -258,15 +300,34 @@ class GameScreen(BaseState):
             for module in self.modules:
                 module.handle_event(event, cx, cy)
     
+    def _get_outer_border_color(self) -> int:
+        """Get outer border color based on strikes and time, with flashing."""
+        strikes = self.game_state.strikes
+        time_remaining = self.game_state.time_remaining
+        
+        # Determine base color - worst condition wins
+        if strikes >= 2 or time_remaining < 60:
+            bright_color = Color.LIGHT_RED
+            dim_color = Color.RED
+        elif strikes >= 1 or time_remaining < 120:
+            bright_color = Color.LIGHT_YELLOW
+            dim_color = Color.YELLOW
+        else:
+            # Safe state - solid green, no flash
+            return Color.GREEN
+        
+        return bright_color if self._border_flash_on else dim_color
+    
     def render(self, buffer: "TextBuffer"):
         """Render the game screen."""
         buffer.clear()
         
-        # Main border
-        draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, Color.GREEN)
+        # Main border - color changes based on danger level
+        border_color = self._get_outer_border_color()
+        draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, border_color)
         
         # Header
-        header = "████  NUHAUS NUCLEAR - MAINTENANCE ROOM 7-G  ████"
+        header = "████  NÜCLEAR SOLUTIONS - MAINTENANCE ROOM 7-G  ████"
         buffer.put_string_centered(1, header, Color.LIGHT_GREEN)
         
         # Render module grid (left side)
