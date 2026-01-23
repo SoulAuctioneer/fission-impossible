@@ -133,9 +133,9 @@ class RodAlignmentModule(BaseModule):
         if self.state != self.State.INPUT:
             return False
         
-        # Diamond layout:
+        # Diamond layout (centered):
         # Red at top: x=10-16, y=2-3
-        # Green left: x=3-9, y=4-5
+        # Green left: x=4-10, y=4-5
         # Blue right: x=17-23, y=4-5
         # Yellow bottom: x=10-16, y=6-7
         
@@ -147,7 +147,7 @@ class RodAlignmentModule(BaseModule):
             elif 6 <= local_y <= 7:
                 pressed_color = 'yellow'
         elif 4 <= local_y <= 5:
-            if 3 <= local_x <= 9:
+            if 4 <= local_x <= 10:
                 pressed_color = 'green'
             elif 17 <= local_x <= 23:
                 pressed_color = 'blue'
@@ -191,10 +191,11 @@ class RodAlignmentModule(BaseModule):
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the diamond of colored buttons."""
-        # Diamond positions (x, y, width, height)
+        # Diamond positions (x, y, width, height) - centered
+        # Diamond spans about 21 chars (3+7+4+7), center = (28-21)//2 = 3, but adjust for visual balance
         buttons = {
             'red':    (self.x + 10, self.y + 2, 7, 2),
-            'green':  (self.x + 3,  self.y + 4, 7, 2),
+            'green':  (self.x + 4,  self.y + 4, 7, 2),
             'blue':   (self.x + 17, self.y + 4, 7, 2),
             'yellow': (self.x + 10, self.y + 6, 7, 2),
         }
@@ -213,12 +214,12 @@ class RodAlignmentModule(BaseModule):
                 buffer.put_char(bx + 1, by, color[0].upper(), fg_color)
                 buffer.put_char(bx + 2, by, ']', Color.DARK_GRAY)
         
-        # Stage indicator
+        # Stage indicator - centered
         stage_y = self.y + 9
-        buffer.put_string(self.x + 2, stage_y, f"STAGE: {self.current_stage + 1}/{self.max_stages}", Color.LIGHT_CYAN)
+        buffer.put_string(self.x + 3, stage_y, f"STAGE: {self.current_stage + 1}/{self.max_stages}", Color.LIGHT_CYAN)
         
         # State indicator
         if self.state == self.State.SHOWING:
-            buffer.put_string(self.x + 16, stage_y, "WATCH", Color.LIGHT_YELLOW)
+            buffer.put_string(self.x + 17, stage_y, "WATCH", Color.LIGHT_YELLOW)
         elif self.state == self.State.INPUT:
-            buffer.put_string(self.x + 16, stage_y, "INPUT", Color.LIGHT_GREEN)
+            buffer.put_string(self.x + 17, stage_y, "INPUT", Color.LIGHT_GREEN)

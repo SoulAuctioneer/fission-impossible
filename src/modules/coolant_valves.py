@@ -124,14 +124,14 @@ class CoolantValvesModule(BaseModule):
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle click to cut a wire."""
-        # Check if click is on a wire
+        # Check if click is on a wire (centered layout)
         wire_start_y = 2
         
         for i in range(self.wire_count):
             wire_y = wire_start_y + i * 2
             
             # Check if clicked on this wire's row (with some tolerance)
-            if local_y == wire_y and 2 <= local_x <= self.width - 3:
+            if local_y == wire_y and 5 <= local_x <= self.width - 5:
                 if i not in self.cut_wires:
                     self._cut_wire(i)
                     return True
@@ -156,15 +156,18 @@ class CoolantValvesModule(BaseModule):
     def _render_content(self, buffer: "TextBuffer"):
         """Render the wire display."""
         wire_start_y = self.y + 2
+        # Center the wire display (label[3] + space + wire[11] + space + num[1] = 17 chars)
+        # (28 - 17) // 2 = 5
+        base_x = self.x + 5
         
         for i, color in enumerate(self.wire_colors):
             wire_y = wire_start_y + i * 2
             
             # Wire label
             label, label_color = self.COLOR_DISPLAY[color]
-            buffer.put_char(self.x + 2, wire_y, '[', Color.DARK_GRAY)
-            buffer.put_char(self.x + 3, wire_y, label, label_color)
-            buffer.put_char(self.x + 4, wire_y, ']', Color.DARK_GRAY)
+            buffer.put_char(base_x, wire_y, '[', Color.DARK_GRAY)
+            buffer.put_char(base_x + 1, wire_y, label, label_color)
+            buffer.put_char(base_x + 2, wire_y, ']', Color.DARK_GRAY)
             
             # Wire itself
             if i in self.cut_wires:
@@ -176,7 +179,7 @@ class CoolantValvesModule(BaseModule):
             
             # Adjust color for cut wires
             wire_color = Color.DARK_GRAY if i in self.cut_wires else label_color
-            buffer.put_string(self.x + 6, wire_y, wire_text, wire_color)
+            buffer.put_string(base_x + 4, wire_y, wire_text, wire_color)
             
             # Wire number for reference
-            buffer.put_char(self.x + 19, wire_y, str(i + 1), Color.DARK_GRAY)
+            buffer.put_char(base_x + 16, wire_y, str(i + 1), Color.DARK_GRAY)

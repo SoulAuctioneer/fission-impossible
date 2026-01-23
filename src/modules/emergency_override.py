@@ -199,12 +199,13 @@ class EmergencyOverrideModule(BaseModule):
         else:
             buffer.put_string(label_x, label_y, self.button_label, Color.WHITE)
         
-        # Strip indicator (when holding)
+        # Strip indicator (when holding) - centered
+        # "STRIP: [████████]" = 18 chars, center = (28-18)//2 = 5
         strip_y = self.y + 9
-        buffer.put_string(self.x + 2, strip_y, "STRIP:", Color.DARK_GRAY)
+        buffer.put_string(self.x + 5, strip_y, "STRIP:", Color.DARK_GRAY)
         
         if self.strip_visible:
             strip_color = self.COLOR_MAP.get(self.strip_color, Color.WHITE)
-            buffer.put_string(self.x + 9, strip_y, "[████████]", strip_color)
+            buffer.put_string(self.x + 12, strip_y, "[████████]", strip_color)
         else:
-            buffer.put_string(self.x + 9, strip_y, "[░░░░░░░░]", Color.DARK_GRAY)
+            buffer.put_string(self.x + 12, strip_y, "[░░░░░░░░]", Color.DARK_GRAY)

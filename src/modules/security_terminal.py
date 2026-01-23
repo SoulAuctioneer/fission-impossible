@@ -78,28 +78,28 @@ class SecurityTerminalModule(BaseModule):
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle click on up/down buttons or submit."""
-        # Letter display starts at local_x=3, each slot is 4 chars wide
+        # Letter display starts at local_x=4, each slot is 4 chars wide (centered)
         # Up arrows are at local_y=3
         # Letters are at local_y=5
         # Down arrows are at local_y=7
-        # Submit button is at local_y=10
+        # Submit button is at local_y=9-11
         
         # Check up arrows (y=3)
         if local_y == 3:
-            slot = (local_x - 3) // 4
+            slot = (local_x - 4) // 4
             if 0 <= slot < 5:
                 self._cycle_up(slot)
                 return True
         
         # Check down arrows (y=7)
         elif local_y == 7:
-            slot = (local_x - 3) // 4
+            slot = (local_x - 4) // 4
             if 0 <= slot < 5:
                 self._cycle_down(slot)
                 return True
         
-        # Check submit button (y=9-11, x=6-20)
-        elif 9 <= local_y <= 11 and 6 <= local_x <= 20:
+        # Check submit button (y=9-11, x=7-20, centered)
+        elif 9 <= local_y <= 11 and 7 <= local_x <= 20:
             self._submit()
             return True
         
@@ -135,16 +135,19 @@ class SecurityTerminalModule(BaseModule):
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the password terminal."""
+        # 5 letter slots * 4 chars = 20 chars, center = (28-20)//2 = 4
+        base_x = self.x + 4
+        
         # Up arrows
         arrow_y = self.y + 3
         for i in range(5):
-            x = self.x + 3 + i * 4
+            x = base_x + i * 4
             buffer.put_string(x, arrow_y, "[▲]", Color.LIGHT_GREEN)
         
         # Letter boxes
         letter_y = self.y + 5
         for i in range(5):
-            x = self.x + 3 + i * 4
+            x = base_x + i * 4
             letter = self.letter_options[i][self.current_indices[i]]
             buffer.put_char(x, letter_y, '[', Color.LIGHT_CYAN)
             buffer.put_char(x + 1, letter_y, letter, Color.WHITE)
@@ -153,10 +156,10 @@ class SecurityTerminalModule(BaseModule):
         # Down arrows
         arrow_y = self.y + 7
         for i in range(5):
-            x = self.x + 3 + i * 4
+            x = base_x + i * 4
             buffer.put_string(x, arrow_y, "[▼]", Color.LIGHT_GREEN)
         
-        # Submit button
+        # Submit button - centered (14 chars wide, center = (28-14)//2 = 7)
         submit_y = self.y + 9
-        draw_box(buffer, self.x + 6, submit_y, 14, 3, SINGLE, Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 8, submit_y + 1, "[ SUBMIT ]", Color.LIGHT_GREEN)
+        draw_box(buffer, self.x + 7, submit_y, 14, 3, SINGLE, Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 9, submit_y + 1, "[ SUBMIT ]", Color.LIGHT_GREEN)

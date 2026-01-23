@@ -181,23 +181,23 @@ class PressureLocksModule(BaseModule):
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle arrow button press."""
-        # Arrow buttons at bottom
-        # Up: x=8-10, y=8
-        # Down: x=8-10, y=10
-        # Left: x=4-6, y=9
-        # Right: x=12-14, y=9
+        # Arrow buttons at bottom (centered)
+        # Up: x=12-14, y=9
+        # Down: x=12-14, y=11
+        # Left: x=8-10, y=10
+        # Right: x=16-18, y=10
         
         direction = None
         
-        if 8 <= local_x <= 10:
-            if local_y == 8:
+        if 12 <= local_x <= 14:
+            if local_y == 9:
                 direction = (0, -1)  # Up
-            elif local_y == 10:
+            elif local_y == 11:
                 direction = (0, 1)   # Down
-        elif local_y == 9:
-            if 4 <= local_x <= 6:
+        elif local_y == 10:
+            if 8 <= local_x <= 10:
                 direction = (-1, 0)  # Left
-            elif 12 <= local_x <= 14:
+            elif 16 <= local_x <= 18:
                 direction = (1, 0)   # Right
         
         if direction:
@@ -226,8 +226,8 @@ class PressureLocksModule(BaseModule):
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the maze grid and controls."""
-        # Grid position
-        grid_x = self.x + 3
+        # Grid position - centered (6 cells * 2 chars = 12 chars, center = (28-12)//2 = 8)
+        grid_x = self.x + 8
         grid_y = self.y + 2
         cell_size = 2
         
@@ -251,9 +251,10 @@ class PressureLocksModule(BaseModule):
                 else:
                     buffer.put_char(cx, cy, '·', Color.DARK_GRAY)
         
-        # Arrow controls (using CP437-compatible arrows)
+        # Arrow controls (using CP437-compatible arrows) - centered
+        # Arrows span 11 chars ([◄]...[▲]...[►]), center = (28-11)//2 = 8
         arrow_y = self.y + 10
-        buffer.put_string(self.x + 8, arrow_y - 1, "[▲]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 4, arrow_y, "[◄]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 12, arrow_y, "[►]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 8, arrow_y + 1, "[▼]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 12, arrow_y - 1, "[▲]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 8, arrow_y, "[◄]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 16, arrow_y, "[►]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 12, arrow_y + 1, "[▼]", Color.LIGHT_GREEN)

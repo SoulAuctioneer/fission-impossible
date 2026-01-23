@@ -80,23 +80,23 @@ class VentCodesModule(BaseModule):
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle symbol button press."""
-        # Symbol buttons are in a 2x2 grid
-        # Button 0: x=3-9, y=3-5
-        # Button 1: x=13-19, y=3-5
-        # Button 2: x=3-9, y=7-9
-        # Button 3: x=13-19, y=7-9
+        # Symbol buttons are in a 2x2 grid (centered)
+        # Button 0: x=5-11, y=3-5
+        # Button 1: x=16-22, y=3-5
+        # Button 2: x=5-11, y=7-9
+        # Button 3: x=16-22, y=7-9
         
         button_idx = -1
         
         if 3 <= local_y <= 5:
-            if 3 <= local_x <= 9:
+            if 5 <= local_x <= 11:
                 button_idx = 0
-            elif 13 <= local_x <= 19:
+            elif 16 <= local_x <= 22:
                 button_idx = 1
         elif 7 <= local_y <= 9:
-            if 3 <= local_x <= 9:
+            if 5 <= local_x <= 11:
                 button_idx = 2
-            elif 13 <= local_x <= 19:
+            elif 16 <= local_x <= 22:
                 button_idx = 3
         
         if button_idx >= 0 and not self.pressed[button_idx]:
@@ -126,12 +126,13 @@ class VentCodesModule(BaseModule):
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the keypad."""
-        # 2x2 grid of symbol buttons
+        # 2x2 grid of symbol buttons - centered
+        # Two buttons (7 wide each) + gap (4) = 18 chars, center = (28-18)//2 = 5
         positions = [
-            (self.x + 3, self.y + 3),   # Top-left
-            (self.x + 13, self.y + 3),  # Top-right
-            (self.x + 3, self.y + 7),   # Bottom-left
-            (self.x + 13, self.y + 7),  # Bottom-right
+            (self.x + 5, self.y + 3),   # Top-left
+            (self.x + 16, self.y + 3),  # Top-right
+            (self.x + 5, self.y + 7),   # Bottom-left
+            (self.x + 16, self.y + 7),  # Bottom-right
         ]
         
         for i, (bx, by) in enumerate(positions):
