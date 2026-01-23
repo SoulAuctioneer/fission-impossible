@@ -302,10 +302,10 @@ func record_strike():
     _flash_error()
 
 func _play_success_sound():
-    AudioManager.play_sfx("module_success")
+    AudioManager.play_sound("module_success")
 
 func _play_strike_sound():
-    AudioManager.play_sfx("strike")
+    AudioManager.play_sound("strike")
 
 func _flash_error():
     # Visual feedback for error

@@ -44,8 +44,8 @@ class StartScreen(BaseState):
         """Handle clock-in button press."""
         self.game.audio.play_sound(SFX.CLOCK_IN)
         # Import here to avoid circular imports
-        from src.states.game_screen import GameScreen
-        self.game.state_machine.switch(GameScreen(self.game))
+        from src.states.briefing_screen import BriefingScreen
+        self.game.state_machine.switch(BriefingScreen(self.game))
     
     def enter(self):
         """Called when entering this state."""

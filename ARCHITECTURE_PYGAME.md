@@ -1158,7 +1158,7 @@ class AudioManager:
                 self._sounds[name] = pygame.mixer.Sound(str(path))
                 self._sounds[name].set_volume(self._sfx_volume)
     
-    def play_sfx(self, name: str):
+    def play_sound(self, name: str):
         """Play a sound effect."""
         if name in self._sounds:
             self._sounds[name].play()

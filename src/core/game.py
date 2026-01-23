@@ -26,9 +26,9 @@ class Game:
         pygame.mixer.init()
         
         # Create window with fullscreen scaling
-        display_flags = pygame.SCALED
-        if SETTINGS.FULLSCREEN:
-            display_flags |= pygame.FULLSCREEN
+        display_flags = pygame.FULLSCREEN # pygame.SCALED
+        # if SETTINGS.FULLSCREEN:
+        #     display_flags |= pygame.FULLSCREEN
         
         self.screen = pygame.display.set_mode(
             (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
@@ -94,6 +94,7 @@ class Game:
         self.running = True
         self._dt = 0.0
         self._show_exit_modal = False
+        self._kiosk_mode = SETTINGS.KIOSK_MODE  # Kiosk mode - prevents exit when True
     
     def start(self):
         """Start the game with the initial state."""
@@ -117,9 +118,16 @@ class Game:
         """Process pygame events."""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.running = False
+                # Block window close in kiosk mode
+                if not self._kiosk_mode:
+                    self.running = False
             
             elif event.type == pygame.KEYDOWN:
+                # F12 toggles kiosk mode (always available)
+                if event.key == pygame.K_F12:
+                    self._toggle_kiosk_mode()
+                    continue
+                
                 # Handle exit confirmation modal
                 if self._show_exit_modal:
                     if event.key in (pygame.K_y, pygame.K_RETURN):
@@ -128,7 +136,9 @@ class Game:
                         self._show_exit_modal = False
                 else:
                     if event.key == pygame.K_ESCAPE:
-                        self._show_exit_modal = True
+                        # Block ESC exit dialog in kiosk mode
+                        if not self._kiosk_mode:
+                            self._show_exit_modal = True
                     elif event.key == pygame.K_F11:
                         self._toggle_fullscreen()
             
@@ -206,6 +216,12 @@ class Game:
             (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
             display_flags
         )
+    
+    def _toggle_kiosk_mode(self):
+        """Toggle kiosk mode (prevents game exit when enabled)."""
+        self._kiosk_mode = not self._kiosk_mode
+        # Play a sound to indicate the mode change
+        self.audio.play_sound(SFX.BUTTON_CLICK)
     
     def _render_exit_modal(self):
         """Render the exit confirmation modal overlay."""

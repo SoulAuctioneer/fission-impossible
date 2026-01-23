@@ -1,5 +1,33 @@
 """
 Game settings and configuration.
+
+SCREEN DIMENSIONS & LAYOUT OVERVIEW
+═══════════════════════════════════════════════════════════════════════════════
+
+The game uses a character-based terminal display:
+
+    COLS × ROWS = 140 × 45 characters
+    CHAR_SIZE   = 8 × 16 pixels per character
+    WINDOW      = 1120 × 720 pixels
+
+Layout regions (see game_screen.py for detailed ASCII diagram):
+
+    ┌────────────────────────────────────────────────────────────────────┐
+    │  Row 0-1:   Header / Title bar                                     │
+    │  Row 2:     Divider                                                │
+    │  Row 3-33:  Main content area                                      │
+    │             ├─ Cols 3-98:    Module grid (2×3, each 28×15 chars)   │
+    │             └─ Cols 103-137: Reactor status panel (35×30 chars)    │
+    │  Row 34:    Gap                                                    │
+    │  Row 35-43: Edgework panel (136×9 chars)                          │
+    │  Row 44:    Bottom border                                          │
+    └────────────────────────────────────────────────────────────────────┘
+
+Module grid spacing:
+    - Each module: 28 wide × 15 tall
+    - Horizontal gap between modules: 4 chars
+    - Vertical gap between rows: 1 char
+    - Module positions: x = 3 + col*(28+4), y = 3 + row*(15+1)
 """
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,28 +37,33 @@ from pathlib import Path
 class Settings:
     """Immutable game settings."""
     
-    # Terminal dimensions (in characters)
-    COLS: int = 140           # Characters wide (wider for module spacing)
-    ROWS: int = 45            # Characters tall
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Terminal Dimensions (in characters)
+    # ═══════════════════════════════════════════════════════════════════════════
+    # These define the character grid size for the ASCII terminal display.
+    # Layout depends on these values - see game_screen.py for detailed layout.
+    COLS: int = 140           # Characters wide (fits 3 modules + status panel)
+    ROWS: int = 45            # Characters tall (fits 2 module rows + edgework)
     
     # Character cell size (in pixels)
     # IBM VGA 8x16 font is 8 pixels wide, 16 pixels tall
     CHAR_WIDTH: int = 8
     CHAR_HEIGHT: int = 16
     
-    # Calculated window size
+    # Calculated window size (pixels = chars × char_size)
     @property
     def WINDOW_WIDTH(self) -> int:
-        return self.COLS * self.CHAR_WIDTH    # 1920
+        return self.COLS * self.CHAR_WIDTH    # 140 * 8 = 1120 pixels
     
     @property
     def WINDOW_HEIGHT(self) -> int:
-        return self.ROWS * self.CHAR_HEIGHT   # 720
+        return self.ROWS * self.CHAR_HEIGHT   # 45 * 16 = 720 pixels
     
     # Display settings
     FPS: int = 60
     TITLE: str = "Fission Impossible — NuHaus Nuclear Terminal"
     FULLSCREEN: bool = True                   # Start in fullscreen (F11 to toggle)
+    KIOSK_MODE: bool = False                  # Kiosk mode - prevents game exit (F12 to toggle)
     
     # Game settings
     STARTING_TIME: float = 300.0  # 5 minutes

@@ -1,5 +1,27 @@
 """
-Reactor status panel - displays timer, strikes, temperature, and edgework.
+Reactor status panel - displays timer, strikes, temperature, and serial number.
+
+PANEL LAYOUT (35 wide × 30 tall, positioned at x=103, y=3)
+═════════════════════════════════════════════════════════════════════════════════
+
+    ╔═════════════════════════════════╗
+    ║       REACTOR STATUS            ║  <- y+0: Title
+    ║                                 ║
+    ║  TIME:  04:32                   ║  <- y+2: Timer display
+    ║  ERRORS: [●] [●] [○]            ║  <- y+4: Strike indicators
+    ║  TEMP:  ▓▓▓▓▓▓▓░░░░░░░░         ║  <- y+6-7: Temperature gauge
+    ║  ─────────────────────────────  ║  <- y+9: Divider
+    ║  SERIAL: AB3CD5                 ║  <- y+11: Quick serial reference
+    ║  ─────────────────────────────  ║  <- y+13: Divider
+    ║  SYSTEM LOG:                    ║  <- y+15+: Rotating status messages
+    ║  > Gary would have solved...    ║
+    ║                                 ║
+    ║  SOLVED: 3/6                    ║  <- y+height-2: Module progress
+    ╚═════════════════════════════════╝
+
+Note: Full edgework (batteries, indicators, parallel port) is displayed
+in the EdgewWorkPanel at the bottom of the screen. Only serial number
+is shown here for quick reference.
 """
 from typing import TYPE_CHECKING, List
 
@@ -97,12 +119,13 @@ class ReactorStatusPanel:
         y = self.y + 9
         buffer.put_string(self.x + 2, y, "─" * (self.width - 4), Color.GREEN)
         
-        # Edgework section
+        # Serial number (kept here for quick reference)
         y += 2
-        self._render_edgework(buffer, y, game_state)
+        buffer.put_string(self.x + 2, y, "SERIAL:", Color.LIGHT_CYAN)
+        buffer.put_string(self.x + 10, y, game_state.edgework.serial_number, Color.LIGHT_YELLOW)
         
         # Divider before status
-        y = self.y + 22
+        y += 2
         buffer.put_string(self.x + 2, y, "─" * (self.width - 4), Color.GREEN)
         
         # Status messages
@@ -113,39 +136,6 @@ class ReactorStatusPanel:
         y = self.y + self.height - 2
         progress_str = f"SOLVED: {game_state.modules_solved}/{game_state.modules_total}"
         buffer.put_string(self.x + 2, y, progress_str, Color.LIGHT_GREEN)
-    
-    def _render_edgework(self, buffer: "TextBuffer", y: int, game_state: "GameState"):
-        """Render the edgework section."""
-        edgework = game_state.edgework
-        
-        buffer.put_string(self.x + 2, y, "SERIAL:", Color.LIGHT_CYAN)
-        buffer.put_string(self.x + 12, y, edgework.serial_number, Color.LIGHT_GREEN)
-        
-        y += 1
-        buffer.put_string(self.x + 2, y, "BATTERIES:", Color.LIGHT_CYAN)
-        buffer.put_string(self.x + 13, y, str(edgework.batteries), Color.LIGHT_GREEN)
-        
-        y += 1
-        buffer.put_string(self.x + 2, y, "PARALLEL:", Color.LIGHT_CYAN)
-        par_str = "YES" if edgework.has_parallel else "NO"
-        buffer.put_string(self.x + 12, y, par_str, Color.LIGHT_GREEN)
-        
-        y += 2
-        buffer.put_string(self.x + 2, y, "INDICATORS:", Color.LIGHT_CYAN)
-        y += 1
-        
-        # Render indicators in rows
-        col = 0
-        for ind_name, lit in edgework.indicators.items():
-            marker = "●" if lit else "○"
-            color = Color.LIGHT_YELLOW if lit else Color.DARK_GRAY
-            x_offset = self.x + 2 + col * 12
-            buffer.put_string(x_offset, y, f"{ind_name}:", Color.DARK_GRAY)
-            buffer.put_string(x_offset + 5, y, f"[{marker}]", color)
-            col += 1
-            if col >= 2:
-                col = 0
-                y += 1
     
     def _render_status_messages(self, buffer: "TextBuffer", y: int):
         """Render the rotating status message."""
