@@ -140,17 +140,42 @@ class CRTPostProcessor:
     
     def _apply_glow(self, surface: pygame.Surface):
         """
-        Apply a subtle phosphor glow effect.
+        Apply phosphor bloom/glow effect to text.
         
-        This is a simple implementation that slightly boosts brightness
-        with a green/cyan tint to simulate phosphor glow.
+        Creates a bloom effect by:
+        1. Downsampling the surface (creates blur via bilinear filtering)
+        2. Upsampling back to original size
+        3. Adding the blurred version with additive blending
+        
+        This simulates the phosphor glow of CRT monitors where bright
+        pixels bleed light into surrounding areas.
         """
-        # Create a tinted overlay for the glow effect
-        glow_surface = pygame.Surface((self.width, self.height))
-        glow_surface.fill((0, self.glow_strength, self.glow_strength // 2))  # Slight green/cyan tint
+        # Blur scale factor - smaller = more blur, larger = less blur
+        # 4 means we downsample to 1/4 size then back up
+        blur_scale = 4
+        small_width = max(1, self.width // blur_scale)
+        small_height = max(1, self.height // blur_scale)
         
-        # Add the glow using additive blending
-        surface.blit(glow_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+        # Downsample (this creates blur via averaging)
+        small_surface = pygame.transform.smoothscale(surface, (small_width, small_height))
+        
+        # Apply a green/cyan phosphor tint to the blurred version
+        tint_surface = pygame.Surface((small_width, small_height))
+        tint_surface.fill((0, 40, 20))  # Green phosphor tint
+        small_surface.blit(tint_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
+        
+        # Upsample back to original size (this spreads the blur)
+        bloom_surface = pygame.transform.smoothscale(small_surface, (self.width, self.height))
+        
+        # Control bloom intensity - scale the RGB values
+        # Using surfarray for efficient pixel manipulation
+        bloom_array = pygame.surfarray.pixels3d(bloom_surface)
+        intensity_factor = self.glow_strength / 50.0  # Normalize to 0.0-1.0 range (assuming max 50)
+        bloom_array[:] = np.clip(bloom_array * intensity_factor, 0, 255).astype(np.uint8)
+        del bloom_array  # Release surface lock
+        
+        # Add the bloom to the original surface
+        surface.blit(bloom_surface, (0, 0), special_flags=pygame.BLEND_RGB_ADD)
     
     def _draw_refresh_line(self, surface: pygame.Surface, dt: float):
         """Draw the moving CRT refresh/scan line."""
