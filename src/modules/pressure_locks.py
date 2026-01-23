@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, List, Tuple, Set
 from src.modules.base_module import BaseModule
 from src.terminal.box_drawing import draw_box, SINGLE
 from src.terminal.colors import Color
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -213,9 +214,11 @@ class PressureLocksModule(BaseModule):
         
         if self._can_move(current, new_pos):
             self.player_pos = list(new_pos)
+            self.play_sound(SFX.GRID_MOVE)
             
             # Check if reached target
             if self.player_pos == list(self.target_pos):
+                self.play_sound(SFX.PATH_COMPLETE)
                 self.solve()
         else:
             # Hit a wall - strike
@@ -244,7 +247,7 @@ class PressureLocksModule(BaseModule):
                 elif is_target:
                     buffer.put_char(cx, cy, '▲', Color.LIGHT_RED)
                 elif is_marker:
-                    buffer.put_char(cx, cy, '◎', Color.LIGHT_CYAN)
+                    buffer.put_char(cx, cy, '◙', Color.LIGHT_CYAN)
                 else:
                     buffer.put_char(cx, cy, '·', Color.DARK_GRAY)
         

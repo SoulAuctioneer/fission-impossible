@@ -11,6 +11,8 @@ from src.terminal.text_buffer import TextBuffer
 from src.terminal.font_renderer import FontRenderer
 from src.terminal.colors import ANSI_COLORS
 from src.effects.crt import CRTPostProcessor
+from src.effects.flicker import ScreenFlicker, StaticNoise, ScanLines
+from src.audio.audio_manager import AudioManager, SFX
 
 
 class Game:
@@ -22,11 +24,17 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         
-        # Create window
+        # Create window with fullscreen scaling
+        display_flags = pygame.SCALED
+        if SETTINGS.FULLSCREEN:
+            display_flags |= pygame.FULLSCREEN
+        
         self.screen = pygame.display.set_mode(
-            (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT)
+            (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
+            display_flags
         )
         pygame.display.set_caption(SETTINGS.TITLE)
+        self._fullscreen = SETTINGS.FULLSCREEN
         
         # Create text buffer (the "terminal")
         self.buffer = TextBuffer(SETTINGS.COLS, SETTINGS.ROWS)
@@ -47,7 +55,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.input = InputHandler()
         
-        # CRT post-processing effects
+        # CRT post-processing effects (pixel-level)
         self.crt_processor = CRTPostProcessor(
             width=SETTINGS.WINDOW_WIDTH,
             height=SETTINGS.WINDOW_HEIGHT,
@@ -61,8 +69,25 @@ class Game:
             glow_strength=SETTINGS.CRT_GLOW_STRENGTH,
         )
         
+        # Text buffer effects (character-level)
+        self.screen_flicker = ScreenFlicker(intensity=SETTINGS.EFFECT_FLICKER_INTENSITY)
+        self.screen_flicker.active = SETTINGS.EFFECT_FLICKER
+        
+        self.static_noise = StaticNoise(intensity=SETTINGS.EFFECT_STATIC_INTENSITY)
+        # StaticNoise is trigger-based, so we just keep it ready
+        # Call game.static_noise.trigger(duration) to activate it
+        
+        self.text_scanlines = ScanLines(
+            active=SETTINGS.EFFECT_TEXT_SCANLINES,
+            speed=SETTINGS.EFFECT_TEXT_SCANLINES_SPEED
+        )
+        
         # State machine
         self.state_machine = StateMachine()
+        
+        # Audio manager
+        self.audio = AudioManager()
+        self.audio.load_all_sounds()
         
         # Game state
         self.running = True
@@ -95,6 +120,8 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
+                elif event.key == pygame.K_F11:
+                    self._toggle_fullscreen()
             
             # Update input handler for mouse events
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
@@ -107,6 +134,10 @@ class Game:
         """Update game logic."""
         self.input.update()
         self.state_machine.update(dt)
+        
+        # Update text buffer effects
+        self.static_noise.update(dt)
+        self.text_scanlines.update(dt)
     
     def _render(self):
         """Render the current frame."""
@@ -116,10 +147,15 @@ class Game:
         # Render current state to text buffer
         self.state_machine.render(self.buffer)
         
+        # Apply text buffer effects (character-level)
+        self.screen_flicker.apply(self.buffer)
+        self.static_noise.apply(self.buffer)
+        self.text_scanlines.apply(self.buffer)
+        
         # Render text buffer to surface
         self.font_renderer.render(self.buffer, self.render_surface)
         
-        # Apply CRT post-processing effects
+        # Apply CRT post-processing effects (pixel-level)
         self.crt_processor.apply(self.render_surface, self._dt)
         
         # Blit to screen
@@ -129,8 +165,27 @@ class Game:
     
     def _cleanup(self):
         """Clean up resources on exit."""
+        self.audio.cleanup()
         pygame.quit()
     
     def quit(self):
         """Request game to quit."""
         self.running = False
+    
+    def trigger_static(self, duration: float = 0.15):
+        """Trigger a burst of static noise (e.g., on strike/error)."""
+        if SETTINGS.EFFECT_STATIC_NOISE:
+            self.static_noise.trigger(duration)
+    
+    def _toggle_fullscreen(self):
+        """Toggle between fullscreen and windowed mode."""
+        self._fullscreen = not self._fullscreen
+        
+        display_flags = pygame.SCALED
+        if self._fullscreen:
+            display_flags |= pygame.FULLSCREEN
+        
+        self.screen = pygame.display.set_mode(
+            (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
+            display_flags
+        )

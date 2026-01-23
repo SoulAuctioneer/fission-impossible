@@ -11,6 +11,7 @@ from src.terminal.colors import Color
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
     from src.core.game_state import GameState
+    from src.audio.audio_manager import AudioManager
 
 
 class BaseModule(ABC):
@@ -20,7 +21,7 @@ class BaseModule(ABC):
     """
     
     def __init__(self, x: int, y: int, width: int, height: int, name: str,
-                 game_state: "GameState"):
+                 game_state: "GameState", audio: "AudioManager" = None):
         # Position and size
         self.x = x
         self.y = y
@@ -30,6 +31,9 @@ class BaseModule(ABC):
         
         # Game state reference
         self.game_state = game_state
+        
+        # Audio manager reference (optional)
+        self.audio = audio
         
         # Module state
         self.solved = False
@@ -82,6 +86,11 @@ class BaseModule(ABC):
             self.solved = True
             if self._on_solve:
                 self._on_solve()
+    
+    def play_sound(self, sound_name: str, volume: float = None):
+        """Play a sound if audio manager is available."""
+        if self.audio:
+            self.audio.play_sound(sound_name, volume)
     
     def contains_char(self, cx: int, cy: int) -> bool:
         """Check if character position is inside module."""

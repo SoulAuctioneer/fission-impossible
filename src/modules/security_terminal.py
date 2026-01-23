@@ -9,6 +9,7 @@ from src.modules.base_module import BaseModule
 from src.terminal.box_drawing import draw_box, SINGLE
 from src.terminal.colors import Color
 from src.ui.button import ASCIIButton
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -109,15 +110,18 @@ class SecurityTerminalModule(BaseModule):
         if 0 <= slot < 5:
             options = self.letter_options[slot]
             self.current_indices[slot] = (self.current_indices[slot] - 1) % len(options)
+            self.play_sound(SFX.LETTER_SCROLL)
     
     def _cycle_down(self, slot: int):
         """Cycle letter down at given slot."""
         if 0 <= slot < 5:
             options = self.letter_options[slot]
             self.current_indices[slot] = (self.current_indices[slot] + 1) % len(options)
+            self.play_sound(SFX.LETTER_SCROLL)
     
     def _submit(self):
         """Submit the current word."""
+        self.play_sound(SFX.WORD_SUBMIT)
         current_word = self.get_current_word()
         
         if current_word == self.target_word:

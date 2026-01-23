@@ -1,0 +1,5 @@
+# Requirements for asset generation scripts
+# Install with: pip install -r scripts/requirements.txt
+
+elevenlabs>=1.0.0
+python-dotenv>=1.0.0

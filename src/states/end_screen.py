@@ -91,7 +91,7 @@ class EndScreen(BaseState):
         # Success message
         buffer.put_string_centered(center_y, "╔════════════════════════════════════╗", Color.LIGHT_GREEN)
         buffer.put_string_centered(center_y + 1, "║                                    ║", Color.LIGHT_GREEN)
-        buffer.put_string_centered(center_y + 2, "║       ✓ SHIFT COMPLETE ✓          ║", Color.LIGHT_GREEN)
+        buffer.put_string_centered(center_y + 2, "║       √ SHIFT COMPLETE √          ║", Color.LIGHT_GREEN)
         buffer.put_string_centered(center_y + 3, "║                                    ║", Color.LIGHT_GREEN)
         buffer.put_string_centered(center_y + 4, "╚════════════════════════════════════╝", Color.LIGHT_GREEN)
         

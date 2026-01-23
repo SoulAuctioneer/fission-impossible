@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, List, Set
 
 from src.modules.base_module import BaseModule
 from src.terminal.colors import Color
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -141,8 +142,12 @@ class CoolantValvesModule(BaseModule):
         """Cut the specified wire."""
         self.cut_wires.add(wire_index)
         
+        # Play wire cut sound
+        self.play_sound(SFX.WIRE_CUT)
+        
         if wire_index == self.correct_wire:
             # Correct wire - solve the module
+            self.play_sound(SFX.WIRE_CORRECT)
             self.solve()
         else:
             # Wrong wire - strike!

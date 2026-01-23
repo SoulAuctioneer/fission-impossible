@@ -74,14 +74,23 @@ class StaticNoise:
 class ScanLines:
     """Subtle scan line effect for CRT feel."""
     
-    def __init__(self, active: bool = False):
+    def __init__(self, active: bool = False, speed: float = 8.0):
         self.active = active
+        self.speed = speed  # Rows per second
         self.offset = 0
+        self._accumulator = 0.0
     
     def update(self, dt: float):
         """Update scan line animation."""
-        # Slow scroll effect
-        self.offset = (self.offset + 1) % 4
+        if self.speed <= 0:
+            return  # Static scanlines, no scrolling
+        
+        # Time-based scrolling
+        self._accumulator += self.speed * dt
+        if self._accumulator >= 1.0:
+            steps = int(self._accumulator)
+            self.offset = (self.offset + steps) % 4
+            self._accumulator -= steps
     
     def apply(self, buffer: "TextBuffer"):
         """Apply scan line effect."""

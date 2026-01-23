@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 from src.modules.base_module import BaseModule
 from src.terminal.box_drawing import draw_box, DOUBLE, SINGLE
 from src.terminal.colors import Color
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -127,6 +128,7 @@ class EmergencyOverrideModule(BaseModule):
         self.is_holding = True
         self.hold_time = 0.0
         self.strip_visible = True
+        self.play_sound(SFX.BUTTON_HOLD)
     
     def _release_button(self):
         """Release the button and check result."""
@@ -137,18 +139,22 @@ class EmergencyOverrideModule(BaseModule):
         if not was_holding:
             return
         
+        self.play_sound(SFX.BUTTON_RELEASE)
+        
         if self.should_hold:
             # Check if released at correct time
             release_digit = self._get_release_digit()
             timer_digit = self.game_state.timer_digit
             
             if timer_digit == release_digit:
+                self.play_sound(SFX.OVERRIDE_COMPLETE)
                 self.solve()
             else:
                 self.strike()
         else:
             # Should have been a quick press
             if self.hold_time < 0.5:
+                self.play_sound(SFX.OVERRIDE_COMPLETE)
                 self.solve()
             else:
                 self.strike()

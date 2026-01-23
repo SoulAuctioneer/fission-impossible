@@ -9,6 +9,7 @@ from src.terminal.box_drawing import draw_box, draw_titled_box, DOUBLE, SINGLE
 from src.terminal.colors import Color
 from src.ui.button import ASCIIButton
 from src.core.input import pixel_to_char
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.core.game import Game
@@ -41,6 +42,7 @@ class StartScreen(BaseState):
     
     def _on_clock_in(self):
         """Handle clock-in button press."""
+        self.game.audio.play_sound(SFX.CLOCK_IN)
         # Import here to avoid circular imports
         from src.states.game_screen import GameScreen
         self.game.state_machine.switch(GameScreen(self.game))
@@ -61,12 +63,17 @@ class StartScreen(BaseState):
         """Handle input events."""
         if event.type == pygame.MOUSEMOTION:
             cx, cy = pixel_to_char(*event.pos)
+            was_hovered = self.clock_in_btn.hovered
             self.clock_in_btn.handle_mouse_move(cx, cy)
+            # Play hover sound when entering button
+            if not was_hovered and self.clock_in_btn.hovered:
+                self.game.audio.play_sound(SFX.BUTTON_HOVER, volume=0.3)
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
                 cx, cy = pixel_to_char(*event.pos)
-                self.clock_in_btn.handle_mouse_down(cx, cy)
+                if self.clock_in_btn.handle_mouse_down(cx, cy):
+                    self.game.audio.play_sound(SFX.BUTTON_CLICK)
         
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
@@ -90,7 +97,7 @@ class StartScreen(BaseState):
         # Shift briefing box
         box_width = 90
         box_x = (buffer.width - box_width) // 2
-        draw_titled_box(buffer, box_x, 6, box_width, 22, "☢  SHIFT BRIEFING  ☢", SINGLE, Color.GREEN, Color.LIGHT_YELLOW)
+        draw_titled_box(buffer, box_x, 6, box_width, 22, "Ω  SHIFT BRIEFING  Ω", SINGLE, Color.GREEN, Color.LIGHT_YELLOW)
         
         # Briefing content
         content_x = box_x + 3
@@ -105,8 +112,8 @@ class StartScreen(BaseState):
             "        TECHNICIAN: Resolve all system faults before meltdown.",
             "        HOTLINE:    Consult the Operations Manual. Guide them through.",
             "",
-            "        ⚠ DO NOT exceed 3 operational errors.",
-            "        ⚠ DO NOT allow the reactor to reach critical temperature.",
+            "        ! DO NOT exceed 3 operational errors.",
+            "        ! DO NOT allow the reactor to reach critical temperature.",
             "",
             "        ──────────────────────────────────────────────────────────────",
             "",
@@ -115,7 +122,7 @@ class StartScreen(BaseState):
         ]
         
         for i, line in enumerate(briefing):
-            color = Color.LIGHT_YELLOW if "ALERT" in line or "⚠" in line else Color.LIGHT_GREEN
+            color = Color.LIGHT_YELLOW if "ALERT" in line or "! DO NOT" in line else Color.LIGHT_GREEN
             if "Manual" in line:
                 color = Color.LIGHT_CYAN
             buffer.put_string(content_x, 7 + i, line, color)

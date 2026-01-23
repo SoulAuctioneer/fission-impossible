@@ -37,14 +37,24 @@ class FontRenderer:
     
     def _prerender_common_glyphs(self):
         """Pre-render frequently used characters in all colors."""
+        # NOTE: Using CP437-compatible characters for IBM VGA font
         common_chars = (
             " !\"#$%&'()*+,-./0123456789:;<=>?@"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
             "abcdefghijklmnopqrstuvwxyz{|}~"
+            # Box drawing (CP437 compatible)
             "─│┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬"
-            "░▒▓█▀▄▌▐■□●○◆◇★☆▲▼◀▶"
-            "☢⚠✱╳╭╮╰╯━┃┏┓┗┛┣┫┳┻╋"
-            "△▽◁▷←→↑↓∙·•¤♦♠♣♥◉◎▪▫◊"
+            # Blocks and shading (CP437 compatible)
+            "░▒▓█▀▄▌▐■"
+            # Symbols (CP437 compatible)
+            "●○◆◊▲▼◄►"
+            "←→↑↓"
+            "·•¤♦♠♣♥"
+            # Greek and math (CP437 compatible)
+            "Ωφ§°±²√∞≈≡≤≥÷‼"
+            # Special (CP437 compatible)
+            "☺☻☼♪♫◙"
+            "©"
         )
         
         for char in common_chars:

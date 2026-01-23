@@ -18,6 +18,7 @@ from src.modules.emergency_override import EmergencyOverrideModule
 from src.modules.vent_codes import VentCodesModule
 from src.modules.rod_alignment import RodAlignmentModule
 from src.modules.pressure_locks import PressureLocksModule
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.core.game import Game
@@ -53,6 +54,7 @@ class GameScreen(BaseState):
         self.modules = []
         
         # Register callbacks
+        self.game_state.on_strike(self._on_strike)
         self.game_state.on_game_over(self._on_game_over)
     
     def enter(self):
@@ -89,7 +91,7 @@ class GameScreen(BaseState):
             module = module_class(
                 positions[idx][0], positions[idx][1],
                 self.MODULE_WIDTH, self.MODULE_HEIGHT,
-                name, self.game_state
+                name, self.game_state, self.game.audio
             )
             module.set_callbacks(self._on_module_strike, self._on_module_solve)
             self.modules.append(module)
@@ -104,9 +106,21 @@ class GameScreen(BaseState):
     def _on_module_solve(self):
         """Handle module solve."""
         self.game_state.solve_module()
+        self.game.audio.play_sound(SFX.MODULE_SOLVED)
+    
+    def _on_strike(self, strike_count: int):
+        """Handle strike callback - trigger visual and audio effects."""
+        self.game.trigger_static(duration=0.35)
+        self.game.audio.play_sound(SFX.STRIKE)
     
     def _on_game_over(self, victory: bool):
         """Handle game over callback."""
+        # Play appropriate end sound
+        if victory:
+            self.game.audio.play_sound(SFX.REACTOR_STABLE)
+        else:
+            self.game.audio.play_sound(SFX.MELTDOWN)
+        
         from src.states.end_screen import EndScreen
         self.game.state_machine.switch(EndScreen(
             self.game,

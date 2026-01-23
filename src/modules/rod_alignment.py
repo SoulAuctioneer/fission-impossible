@@ -8,6 +8,7 @@ from enum import Enum
 
 from src.modules.base_module import BaseModule
 from src.terminal.colors import Color
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -165,9 +166,11 @@ class RodAlignmentModule(BaseModule):
         
         # Flash the pressed button briefly
         self.active_color = color
+        self.play_sound(SFX.ROD_MOVE)
         
         if color == expected_color:
             self.input_index += 1
+            self.play_sound(SFX.ROD_LOCK)
             
             # Check if stage complete
             if self.input_index > self.current_stage:

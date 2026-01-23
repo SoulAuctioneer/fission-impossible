@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, List, Set, Optional
 from src.modules.base_module import BaseModule
 from src.terminal.box_drawing import draw_box, SINGLE
 from src.terminal.colors import Color
+from src.audio.audio_manager import SFX
 
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
@@ -22,17 +23,19 @@ class VentCodesModule(BaseModule):
     
     # Symbol columns (from original game, with nuclear-themed symbols)
     # Each column defines the order symbols should be pressed
+    # NOTE: Using CP437-compatible characters for IBM VGA font compatibility
+    # Mapping: ☢→Ω, ★→♦, ◊→◊, ⚡→§, ✱→¤, ℃→°, ◎→◙, ⚠→‼, ∅→φ, ©→©, ⚙→♠
     COLUMNS = [
-        ['☢', '★', '◊', '⚡', '✱', '¤', '℃'],
-        ['◎', '☢', '℃', '⚠', '★', '¤', '∅'],
-        ['©', '⚡', '℃', '⚠', '✱', '◊', '★'],
-        ['⚙', '⚠', '∅', '✱', '◊', '©', '⚡'],
-        ['✱', '∅', '©', '⚡', '⚠', '◎', '☢'],
-        ['⚙', '◎', '∅', '★', '¤', '⚡', '©'],
+        ['Ω', '♦', '◊', '§', '¤', '±', '°'],
+        ['◙', 'Ω', '°', '‼', '♦', '±', 'φ'],
+        ['©', '§', '°', '‼', '¤', '◊', '♦'],
+        ['♠', '‼', 'φ', '¤', '◊', '©', '§'],
+        ['¤', 'φ', '©', '§', '‼', '◙', 'Ω'],
+        ['♠', '◙', 'φ', '♦', '±', '§', '©'],
     ]
     
-    # All unique symbols
-    ALL_SYMBOLS = ['☢', '★', '◊', '⚡', '✱', '¤', '℃', '◎', '⚠', '∅', '©', '⚙']
+    # All unique symbols (CP437 compatible)
+    ALL_SYMBOLS = ['Ω', '♦', '◊', '§', '¤', '±', '°', '◙', '‼', 'φ', '©', '♠']
     
     def _initialize(self):
         """Initialize module variables."""
@@ -107,12 +110,15 @@ class VentCodesModule(BaseModule):
         # Check if this is the correct next button
         expected_idx = self.correct_order[self.press_count]
         
+        self.play_sound(SFX.SYMBOL_SELECT)
+        
         if idx == expected_idx:
             self.pressed[idx] = True
             self.press_count += 1
             
             # Check if all pressed
             if self.press_count >= 4:
+                self.play_sound(SFX.CODE_SUBMIT)
                 self.solve()
         else:
             # Wrong button - strike
@@ -145,6 +151,6 @@ class VentCodesModule(BaseModule):
             sym_y = by + 1
             
             if pressed:
-                buffer.put_char(sym_x, sym_y, '✓', Color.LIGHT_GREEN)
+                buffer.put_char(sym_x, sym_y, '√', Color.LIGHT_GREEN)  # CP437 checkmark
             else:
                 buffer.put_char(sym_x, sym_y, symbol, Color.LIGHT_YELLOW)
