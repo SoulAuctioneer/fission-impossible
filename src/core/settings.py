@@ -10,7 +10,7 @@ class Settings:
     """Immutable game settings."""
     
     # Terminal dimensions (in characters)
-    COLS: int = 120           # Characters wide
+    COLS: int = 140           # Characters wide (wider for module spacing)
     ROWS: int = 45            # Characters tall
     
     # Character cell size (in pixels)

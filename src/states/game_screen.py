@@ -32,9 +32,10 @@ class GameScreen(BaseState):
     
     # Module grid constants
     MODULE_WIDTH = 28
-    MODULE_HEIGHT = 13
-    MODULE_START_X = 2
+    MODULE_HEIGHT = 15        # Increased by 2 for status clearance
+    MODULE_START_X = 3
     MODULE_START_Y = 3
+    MODULE_GAP_X = 4          # Horizontal gap between modules
     MODULE_NAMES = [
         "COOLANT BYPASS", "EMERGENCY OVERRIDE",
         "VENT CODES", "ROD ALIGNMENT",
@@ -47,8 +48,8 @@ class GameScreen(BaseState):
         # Game state
         self.game_state = GameState()
         
-        # Reactor status panel
-        self.status_panel = ReactorStatusPanel(89, 3, 29, 40)
+        # Reactor status panel (positioned after module grid with spacing)
+        self.status_panel = ReactorStatusPanel(103, 3, 35, 40)
         
         # Modules (will be populated in Phase 4)
         self.modules = []
@@ -68,11 +69,11 @@ class GameScreen(BaseState):
         """Generate and initialize modules."""
         self.modules = []
         
-        # Module positions (2 rows x 3 cols)
+        # Module positions (2 rows x 3 cols) with horizontal gaps
         positions = []
         for row in range(2):
             for col in range(3):
-                x = self.MODULE_START_X + col * (self.MODULE_WIDTH + 1)
+                x = self.MODULE_START_X + col * (self.MODULE_WIDTH + self.MODULE_GAP_X)
                 y = self.MODULE_START_Y + row * (self.MODULE_HEIGHT + 1)
                 positions.append((x, y))
         
@@ -181,7 +182,7 @@ class GameScreen(BaseState):
             # Find which grid position this module is in
             for row in range(2):
                 for col in range(3):
-                    x = self.MODULE_START_X + col * (self.MODULE_WIDTH + 1)
+                    x = self.MODULE_START_X + col * (self.MODULE_WIDTH + self.MODULE_GAP_X)
                     y = self.MODULE_START_Y + row * (self.MODULE_HEIGHT + 1)
                     if module.x == x and module.y == y:
                         module_positions.add(row * 3 + col)
@@ -195,7 +196,7 @@ class GameScreen(BaseState):
             for col in range(3):
                 idx = row * 3 + col
                 if idx not in module_positions:
-                    x = self.MODULE_START_X + col * (self.MODULE_WIDTH + 1)
+                    x = self.MODULE_START_X + col * (self.MODULE_WIDTH + self.MODULE_GAP_X)
                     y = self.MODULE_START_Y + row * (self.MODULE_HEIGHT + 1)
                     
                     # Module frame

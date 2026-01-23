@@ -9,7 +9,8 @@ from src.core.state_machine import StateMachine
 from src.core.input import InputHandler
 from src.terminal.text_buffer import TextBuffer
 from src.terminal.font_renderer import FontRenderer
-from src.terminal.colors import ANSI_COLORS
+from src.terminal.colors import ANSI_COLORS, Color
+from src.terminal.box_drawing import draw_box, DOUBLE
 from src.effects.crt import CRTPostProcessor
 from src.effects.flicker import ScreenFlicker, StaticNoise, ScanLines
 from src.audio.audio_manager import AudioManager, SFX
@@ -92,6 +93,7 @@ class Game:
         # Game state
         self.running = True
         self._dt = 0.0
+        self._show_exit_modal = False
     
     def start(self):
         """Start the game with the initial state."""
@@ -118,10 +120,21 @@ class Game:
                 self.running = False
             
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.running = False
-                elif event.key == pygame.K_F11:
-                    self._toggle_fullscreen()
+                # Handle exit confirmation modal
+                if self._show_exit_modal:
+                    if event.key in (pygame.K_y, pygame.K_RETURN):
+                        self.running = False
+                    elif event.key in (pygame.K_n, pygame.K_ESCAPE):
+                        self._show_exit_modal = False
+                else:
+                    if event.key == pygame.K_ESCAPE:
+                        self._show_exit_modal = True
+                    elif event.key == pygame.K_F11:
+                        self._toggle_fullscreen()
+            
+            # Don't pass events to state when modal is showing
+            if self._show_exit_modal:
+                continue
             
             # Update input handler for mouse events
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
@@ -146,6 +159,10 @@ class Game:
         
         # Render current state to text buffer
         self.state_machine.render(self.buffer)
+        
+        # Render exit confirmation modal on top if active
+        if self._show_exit_modal:
+            self._render_exit_modal()
         
         # Apply text buffer effects (character-level)
         self.screen_flicker.apply(self.buffer)
@@ -189,3 +206,46 @@ class Game:
             (SETTINGS.WINDOW_WIDTH, SETTINGS.WINDOW_HEIGHT),
             display_flags
         )
+    
+    def _render_exit_modal(self):
+        """Render the exit confirmation modal overlay."""
+        # Modal dimensions
+        modal_width = 50
+        modal_height = 9
+        modal_x = (self.buffer.width - modal_width) // 2
+        modal_y = (self.buffer.height - modal_height) // 2
+        
+        # Dim background by filling modal area with dark background
+        self.buffer.fill_rect(modal_x - 1, modal_y - 1, modal_width + 2, modal_height + 2, 
+                              '░', Color.DARK_GRAY, Color.BLACK)
+        
+        # Clear modal interior
+        self.buffer.fill_rect(modal_x, modal_y, modal_width, modal_height, 
+                              ' ', Color.LIGHT_GREEN, Color.BLACK)
+        
+        # Draw border
+        draw_box(self.buffer, modal_x, modal_y, modal_width, modal_height, 
+                 DOUBLE, Color.LIGHT_YELLOW)
+        
+        # Title
+        title = " EXIT CONFIRMATION "
+        title_x = modal_x + (modal_width - len(title)) // 2
+        self.buffer.put_string(title_x, modal_y, title, Color.LIGHT_YELLOW)
+        
+        # Message
+        msg1 = "Sure you want to exit?"
+        msg2 = "You probably don't!"
+        self.buffer.put_string(modal_x + (modal_width - len(msg1)) // 2, modal_y + 2, 
+                               msg1, Color.LIGHT_GREEN)
+        self.buffer.put_string(modal_x + (modal_width - len(msg2)) // 2, modal_y + 3, 
+                               msg2, Color.LIGHT_RED)
+        
+        # Options
+        options = "[Y] Yes, abandon shift    [N] No, return"
+        self.buffer.put_string(modal_x + (modal_width - len(options)) // 2, modal_y + 5, 
+                               options, Color.LIGHT_CYAN)
+        
+        # Hint
+        hint = "(ESC to cancel)"
+        self.buffer.put_string(modal_x + (modal_width - len(hint)) // 2, modal_y + 7, 
+                               hint, Color.DARK_GRAY)

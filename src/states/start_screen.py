@@ -114,15 +114,17 @@ class StartScreen(BaseState):
             "",
             "        ! DO NOT exceed 3 operational errors.",
             "        ! DO NOT allow the reactor to reach critical temperature.",
+            "        ! HOTLINE crew must NOT look at the maintenance terminal.",
             "",
             "        ──────────────────────────────────────────────────────────────",
             "",
             "        Manual available at:  http://localhost:8080/manual",
-            "",
         ]
         
         for i, line in enumerate(briefing):
-            color = Color.LIGHT_YELLOW if "ALERT" in line or "! DO NOT" in line else Color.LIGHT_GREEN
+            color = Color.LIGHT_GREEN
+            if "ALERT" in line or line.strip().startswith("!"):
+                color = Color.LIGHT_YELLOW
             if "Manual" in line:
                 color = Color.LIGHT_CYAN
             buffer.put_string(content_x, 7 + i, line, color)

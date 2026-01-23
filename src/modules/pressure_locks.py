@@ -251,9 +251,9 @@ class PressureLocksModule(BaseModule):
                 else:
                     buffer.put_char(cx, cy, '·', Color.DARK_GRAY)
         
-        # Arrow controls
-        arrow_y = self.y + 9
+        # Arrow controls (using CP437-compatible arrows)
+        arrow_y = self.y + 10
         buffer.put_string(self.x + 8, arrow_y - 1, "[▲]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 4, arrow_y, "[◀]", Color.LIGHT_GREEN)
-        buffer.put_string(self.x + 12, arrow_y, "[▶]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 4, arrow_y, "[◄]", Color.LIGHT_GREEN)
+        buffer.put_string(self.x + 12, arrow_y, "[►]", Color.LIGHT_GREEN)
         buffer.put_string(self.x + 8, arrow_y + 1, "[▼]", Color.LIGHT_GREEN)

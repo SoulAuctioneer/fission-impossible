@@ -29,7 +29,7 @@ class ReactorStatusPanel:
         self.strike_indicator = StrikeIndicator(x + 10, y + 4)
         self.temp_gauge = TemperatureGauge(x + 2, y + 7, width - 4)
         
-        # Status messages
+        # Status messages (themed from THEME.md)
         self.status_messages = [
             "Maintenance Terminal Online.",
             "All systems operational. Probably.",
@@ -38,6 +38,13 @@ class ReactorStatusPanel:
             "Tip: Refer to manual section 7.4.2",
             "The vending machine in break room 3 has been restocked.",
             "NOTICE: Tuesday's evacuation drill has been postponed.",
+            "Coffee machine status: concerning.",
+            "Radiation levels within acceptable parameters.",
+            "REMINDER: Submit Form 27-B before end of shift.",
+            "The suggestion box remains welded shut.",
+            "Doris from HR is checking on something.",
+            "The fluorescent lights have always flickered.",
+            "NOTICE: Overtime requests are automatically denied.",
         ]
         self.message_index = 0
         self.message_timer = 0.0
