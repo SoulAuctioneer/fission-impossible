@@ -42,6 +42,16 @@ class Settings:
     # USB (future feature)
     USB_ENABLED: bool = False
     USB_BAUD_RATE: int = 115200
+    
+    # CRT Post-Processing Effects
+    CRT_SCANLINES: bool = True
+    CRT_SCANLINE_ALPHA: int = 40          # 0-255, darkness of scanlines
+    CRT_VIGNETTE: bool = True
+    CRT_VIGNETTE_STRENGTH: float = 0.6    # 0.0-1.0, edge darkening intensity
+    CRT_REFRESH_LINE: bool = True
+    CRT_REFRESH_SPEED: float = 200.0      # pixels per second
+    CRT_GLOW: bool = True
+    CRT_GLOW_STRENGTH: int = 30           # 0-50, phosphor glow intensity
 
 
 # Global settings instance
