@@ -61,7 +61,7 @@ class ReactorStatusPanel:
             "NOTICE: Tuesday's evacuation drill cancelled due to actual emergency.",
             "The geiger counter is not a musical instrument. Please stop.",
             "ALERT: Immaculate vibes detected in reactor core. System overload imminent.",
-            "REMINDER: Team meeting at 12:00AM."
+            "REMINDER: Team meeting at 12:00AM.",
             "NOTICE: 'Cool fusion' research proposal rejected. Again. See: Incident Report #4024.",
             "MEMO: Consulting ChatGPT for reactor calculations is NOT an approved safety protocol.",
             "CORRECTION: Uranium isotope error detected. ChatGPT has been notified.",

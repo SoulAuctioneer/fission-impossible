@@ -26,8 +26,8 @@ class EndScreen(BaseState):
         self.time_remaining = time_remaining
         self.strikes = strikes
         
-        # Auto-reset timer (10 seconds)
-        self.reset_timer = 10.0
+        # Auto-reset timer (15 seconds)
+        self.reset_timer = 15.0
         
         # Flash effect for failure
         self.flash_timer = 0.0
@@ -44,7 +44,7 @@ class EndScreen(BaseState):
         # Update flash effect
         if self.flash_active:
             self.flash_timer += dt
-            if self.flash_timer >= 0.3:
+            if self.flash_timer >= 1.5:
                 self.flash_active = False
         
         # Update reset timer

@@ -87,7 +87,7 @@ class Settings:
     CRT_REFRESH_SPEED: float = 200.0      # pixels per second
     CRT_GLOW: bool = True
     CRT_GLOW_STRENGTH: int = 30           # 0-50, phosphor glow intensity
-    CRT_INDICATOR_GLOW_STRENGTH: int = 60 # 0-100, extra glow for lit indicators (LEDs, filled gauges)
+    CRT_INDICATOR_GLOW_STRENGTH: int = 100 # 0-100, extra glow for lit indicators (LEDs, filled gauges)
     
     # Text Buffer Effects (character-level, applied to TextBuffer)
     EFFECT_FLICKER: bool = True
