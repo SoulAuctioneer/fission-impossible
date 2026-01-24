@@ -141,8 +141,13 @@ class Game:
                         self._show_exit_modal = False
                 else:
                     if event.key == pygame.K_ESCAPE:
-                        # Block ESC exit dialog in kiosk mode
-                        if not self._kiosk_mode:
+                        # GameScreen handles its own ESC (returns to start screen)
+                        # Only show app exit modal for other screens, and not in kiosk mode
+                        from src.states.game_screen import GameScreen
+                        current_state = self.state_machine.current
+                        if isinstance(current_state, GameScreen):
+                            pass  # Let GameScreen handle ESC
+                        elif not self._kiosk_mode:
                             self._show_exit_modal = True
                     elif event.key in (pygame.K_F11, pygame.K_F10):
                         # F11 or F10 toggles fullscreen (F10 for macOS where F11 is system shortcut)

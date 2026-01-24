@@ -144,9 +144,8 @@ class EmergencyOverrideModule(BaseModule):
         if self.should_hold:
             # Check if released at correct time
             release_digit = self._get_release_digit()
-            timer_digit = self.game_state.timer_digit
             
-            if timer_digit == release_digit:
+            if self.game_state.timer_contains_digit(release_digit):
                 self.play_sound(SFX.OVERRIDE_COMPLETE)
                 self.solve()
             else:

@@ -23,7 +23,8 @@ class EndScreen(BaseState):
     """
     
     def __init__(self, game: "Game", victory: bool, game_state: Optional[GameState] = None,
-                 time_remaining: float = 0, strikes: int = 0):
+                 time_remaining: float = 0, strikes: int = 0,
+                 status_panel: Optional[ReactorStatusPanel] = None):
         super().__init__(game)
         self.victory = victory
         
@@ -43,8 +44,12 @@ class EndScreen(BaseState):
         # Freeze the game state (stop updates)
         self.game_state.game_over = True
         
-        # Reactor status panel - same position as game screen (right side)
-        self.status_panel = ReactorStatusPanel(100, 3, 42, 31)
+        # Use provided status panel to preserve accumulated state (log messages, etc.)
+        # or create a new one for testing
+        if status_panel:
+            self.status_panel = status_panel
+        else:
+            self.status_panel = ReactorStatusPanel(100, 3, 42, 31)
         
         # Auto-reset timer (30 seconds)
         self.reset_timer = 30.0
@@ -81,8 +86,8 @@ class EndScreen(BaseState):
     
     def _return_to_start(self):
         """Return to start screen."""
-        # Reset flicker to calm state
-        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_0_STRIKES
+        # Reset flicker to nominal (calm) state
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
         from src.states.start_screen import StartScreen
         self.game.state_machine.switch(StartScreen(self.game))
     
@@ -195,7 +200,7 @@ class EndScreen(BaseState):
         fail_text = [
             "████████████████████████████████████████████",
             "████████████████████████████████████████████",
-            "████      SIGNAL LOST      ████",
+            "████     TRAINING FAILED     ████",
             "████████████████████████████████████████████",
             "████████████████████████████████████████████",
         ]
@@ -207,6 +212,13 @@ class EndScreen(BaseState):
         
         y += 7
         buffer.put_string(5, y, "─" * 85, Color.DARK_GRAY)
+        
+        y += 2
+        buffer.put_string(5, y, "THIS WAS, IN FACT, A DRILL.", Color.LIGHT_YELLOW)
+        y += 2
+        buffer.put_string(5, y, "But if it hadn't been, we would all be dead. Because of you.", Color.DARK_GRAY)
+        y += 1
+        buffer.put_string(5, y, "And we would be forced to issue the following notifications:", Color.DARK_GRAY)
         
         y += 2
         buffer.put_string(5, y, "AUTOMATED CORPORATE RESPONSE:", Color.LIGHT_RED)

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from src.states.base_state import BaseState
 from src.terminal.box_drawing import draw_box, DOUBLE
 from src.terminal.colors import Color
+from src.core.settings import SETTINGS
 
 if TYPE_CHECKING:
     from src.core.game import Game
@@ -30,6 +31,8 @@ class BriefingScreen(BaseState):
     def enter(self):
         """Called when entering this state."""
         self.elapsed_time = 0.0
+        # Maintain nominal (calm) flicker during briefing
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
     
     def update(self, dt: float):
         """Update briefing screen."""
@@ -76,7 +79,7 @@ class BriefingScreen(BaseState):
         
         # Main instructions
         line1 = "This terminal is for your eyes ONLY."
-        line2 = "You CANNOT read the Maintenance Manual."
+        line2 = "Describe what you see to the Hotline Team."
         
         buffer.put_string_centered(center_y - 1, line1, Color.LIGHT_YELLOW)
         buffer.put_string_centered(center_y + 1, line2, Color.LIGHT_YELLOW)

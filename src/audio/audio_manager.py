@@ -168,6 +168,10 @@ class SFX:
     # Rod Alignment Module
     ROD_MOVE = "rod_move"
     ROD_LOCK = "rod_lock"
+    SIMON_TONE_RED = "simon_tone_red"
+    SIMON_TONE_BLUE = "simon_tone_blue"
+    SIMON_TONE_GREEN = "simon_tone_green"
+    SIMON_TONE_YELLOW = "simon_tone_yellow"
     
     # Pressure Locks Module
     GRID_MOVE = "grid_move"
@@ -185,6 +189,7 @@ class SFX:
     GEIGER_CLICK = "geiger_click"
     ALARM_SIREN = "alarm_siren"
     COOLANT_FLOW = "coolant_flow"
+    EMERGENCY_KLAXON = "emergency_klaxon"
     
     # List of all sound effects for bulk loading
     ALL = [
@@ -195,8 +200,9 @@ class SFX:
         WIRE_CUT, WIRE_CORRECT,
         BUTTON_HOLD, BUTTON_RELEASE, STRIP_FILL, OVERRIDE_COMPLETE,
         SYMBOL_SELECT, CODE_SUBMIT,
-        ROD_MOVE, ROD_LOCK,
+        ROD_MOVE, ROD_LOCK, SIMON_TONE_RED, SIMON_TONE_BLUE, SIMON_TONE_GREEN, SIMON_TONE_YELLOW,
         GRID_MOVE, MARKER_PLACE, PATH_COMPLETE,
         LETTER_SCROLL, LETTER_LOCK, WORD_SUBMIT,
         REACTOR_HUM, STEAM_RELEASE, GEIGER_CLICK, ALARM_SIREN, COOLANT_FLOW,
+        EMERGENCY_KLAXON,
     ]

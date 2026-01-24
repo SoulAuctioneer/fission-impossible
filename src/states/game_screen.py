@@ -57,7 +57,7 @@ from src.states.base_state import BaseState
 from src.terminal.box_drawing import draw_box, draw_titled_box, DOUBLE, SINGLE
 from src.terminal.colors import Color
 from src.core.input import pixel_to_char
-from src.core.game_state import GameState
+from src.core.game_state import GameState, GamePhase
 from src.utils.edgework import generate_edgework
 from src.ui.reactor_status import ReactorStatusPanel
 from src.ui.edgework_panel import EdgewWorkPanel
@@ -122,8 +122,10 @@ class GameScreen(BaseState):
         self.edgework_panel = EdgewWorkPanel(3, 35, 139, 9)
         
         # Modules (will be populated in enter())
-        self.modules = []
+        self.modules: List[BaseModule] = []
         self._occupied_positions: Set[int] = set()  # Track which grid positions have modules
+        self._disabled_positions: Set[int] = set()  # Positions with disabled (training) modules
+        self._training_module_idx: int = 0  # Index in self.modules of the training module
         
         # Timer tick tracking (for playing tick sound each second)
         self._last_tick_second: int = -1
@@ -131,6 +133,21 @@ class GameScreen(BaseState):
         # Outer border flash state
         self._border_flash_timer = 0.0
         self._border_flash_on = True
+        
+        # ═══════════════════════════════════════════════════════════════════════
+        # Training Mode / Phase Transition State
+        # ═══════════════════════════════════════════════════════════════════════
+        self._phase_timer: float = 0.0  # Timer for phase transitions
+        self._modal_flash_timer: float = 0.0  # Timer for modal border flashing
+        self._modal_flash_on: bool = True
+        self._screen_flash_timer: float = 0.0  # Timer for red screen flash
+        self._screen_flash_active: bool = False
+        self._klaxon_playing: bool = False
+        
+        # Training exit confirmation and inactivity timeout
+        self._show_exit_training_modal: bool = False
+        self._inactivity_timer: float = 0.0
+        self._inactivity_timeout: float = 180.0  # 3 minutes
         
         # Register callbacks
         self.game_state.on_strike(self._on_strike)
@@ -145,6 +162,10 @@ class GameScreen(BaseState):
         
         # Initialize tick tracking to current second
         self._last_tick_second = int(self.game_state.time_remaining)
+        
+        # Reset inactivity timer
+        self._inactivity_timer = 0.0
+        self._show_exit_training_modal = False
     
     def _generate_modules(self):
         """Generate and initialize modules with random selection and placement."""
@@ -177,8 +198,19 @@ class GameScreen(BaseState):
         # Track which positions have modules (for blanking plate rendering)
         self._occupied_positions: Set[int] = set(selected_position_indices)
         
+        # Pick one module to be the training module
+        # IMPORTANT: Emergency Override requires the timer, so it cannot be the training module
+        valid_training_indices = [
+            i for i, (module_class, _) in enumerate(selected_modules)
+            if module_class != EmergencyOverrideModule
+        ]
+        self._training_module_idx = random.choice(valid_training_indices) if valid_training_indices else 0
+        
+        # Track disabled module positions (all except training module during training)
+        self._disabled_positions: Set[int] = set()
+        
         # Create modules at random positions
-        for (module_class, name), pos_idx in zip(selected_modules, selected_position_indices):
+        for i, ((module_class, name), pos_idx) in enumerate(zip(selected_modules, selected_position_indices)):
             x, y = all_positions[pos_idx]
             module = module_class(
                 x, y,
@@ -187,18 +219,38 @@ class GameScreen(BaseState):
             )
             module.set_callbacks(self._on_module_strike, self._on_module_solve)
             self.modules.append(module)
+            
+            # Disable all modules except the training one during training phase
+            if i != self._training_module_idx:
+                module.active = False
+                self._disabled_positions.add(pos_idx)
         
-        # Update total modules count (only 4 active modules)
-        self.game_state.modules_total = len(self.modules)
+        # During training, only 1 module counts
+        # After training, all 4 will count (minus the one already solved)
+        self.game_state.modules_total = 1  # Start with just training module
+        self.game_state.training_module_index = self._training_module_idx
     
     def _on_module_strike(self):
         """Handle module strike."""
+        if self.game_state.is_training:
+            # During training, play sound but don't count strike or show effects
+            self.game.audio.play_sound(SFX.STRIKE, volume=0.5)
+            return
         self.game_state.add_strike()
     
     def _on_module_solve(self):
         """Handle module solve."""
-        self.game_state.solve_module()
         self.game.audio.play_sound(SFX.MODULE_SOLVED)
+        
+        if self.game_state.phase == GamePhase.TRAINING:
+            # Training module completed - transition to TRAINING_COMPLETE
+            self.game_state.modules_solved = 1
+            self.game_state.set_phase(GamePhase.TRAINING_COMPLETE)
+            self._phase_timer = 0.0
+            return
+        
+        # Normal game - count the solve
+        self.game_state.solve_module()
     
     def _on_strike(self, strike_count: int):
         """Handle strike callback - trigger visual and audio effects."""
@@ -217,7 +269,8 @@ class GameScreen(BaseState):
         self.game.state_machine.switch(EndScreen(
             self.game,
             victory=victory,
-            game_state=self.game_state
+            game_state=self.game_state,
+            status_panel=self.status_panel
         ))
     
     def update(self, dt: float):
@@ -225,7 +278,113 @@ class GameScreen(BaseState):
         if self.game_state.game_over:
             return
         
-        # Update game state
+        # Don't update game while showing exit modal
+        if self._show_exit_training_modal:
+            return
+        
+        # ═══════════════════════════════════════════════════════════════════════
+        # Inactivity timeout during training phase
+        # ═══════════════════════════════════════════════════════════════════════
+        if self.game_state.phase == GamePhase.TRAINING:
+            self._inactivity_timer += dt
+            if self._inactivity_timer >= self._inactivity_timeout:
+                self._return_to_start()
+                return
+        
+        # ═══════════════════════════════════════════════════════════════════════
+        # Phase-specific updates
+        # ═══════════════════════════════════════════════════════════════════════
+        phase = self.game_state.phase
+        
+        if phase == GamePhase.TRAINING_COMPLETE:
+            # Show "TRAINING COMPLETE" modal for 5 seconds, then transition
+            self._phase_timer += dt
+            self._update_modal_flash(dt, 1.0)  # Slow flash for celebration
+            
+            if self._phase_timer >= 5.0:
+                self._start_emergency_warning()
+        
+        elif phase == GamePhase.EMERGENCY_WARNING:
+            # Warning modal for 7 seconds with dramatic effects
+            self._phase_timer += dt
+            self._update_modal_flash(dt, 0.15)  # Fast flash for urgency
+            self._update_screen_flash(dt)
+            
+            if self._phase_timer >= 7.0:
+                self._start_real_game()
+        
+        elif phase == GamePhase.REAL_GAME:
+            # Normal game updates
+            self._update_real_game(dt)
+        
+        # Training phase has no timer updates
+        
+        # Update status panel (always)
+        self.status_panel.update(dt, self.game_state)
+        
+        # Update modules (always, but some may be inactive)
+        for module in self.modules:
+            module.update(dt)
+    
+    def _update_modal_flash(self, dt: float, interval: float):
+        """Update modal border flash timer."""
+        self._modal_flash_timer += dt
+        if self._modal_flash_timer >= interval:
+            self._modal_flash_timer = 0.0
+            self._modal_flash_on = not self._modal_flash_on
+    
+    def _update_screen_flash(self, dt: float):
+        """Update screen red flash effect during emergency warning."""
+        self._screen_flash_timer += dt
+        if self._screen_flash_timer >= 0.2:
+            self._screen_flash_timer = 0.0
+            self._screen_flash_active = not self._screen_flash_active
+    
+    def _start_emergency_warning(self):
+        """Transition to emergency warning phase with dramatic effects."""
+        self.game_state.set_phase(GamePhase.EMERGENCY_WARNING)
+        self._phase_timer = 0.0
+        self._screen_flash_active = True
+        self._screen_flash_timer = 0.0
+        
+        # Trigger dramatic effects
+        self.game.trigger_static(duration=1.5)
+        self.game.audio.play_sound(SFX.EMERGENCY_KLAXON)
+        self._klaxon_playing = True
+        
+        # Heavy flicker
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_2_STRIKES
+    
+    def _start_real_game(self):
+        """Transition to real game - unlock modules and start timer."""
+        # Unlock disabled modules
+        for module in self.modules:
+            module.active = True
+        self._disabled_positions.clear()
+        
+        # Start the real game (3 minutes, resets strikes)
+        self.game_state.modules_total = len(self.modules)  # All 4 modules now count
+        self.game_state.modules_solved = 1  # Training module already solved
+        self.game_state.start_real_game()
+        
+        # Reset effects
+        self._screen_flash_active = False
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_0_STRIKES
+        self._klaxon_playing = False
+        
+        # Initialize tick tracking
+        self._last_tick_second = int(self.game_state.time_remaining)
+    
+    def _return_to_start(self):
+        """Return to start screen (exit training)."""
+        # Reset flicker to nominal (calm) state
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
+        from src.states.start_screen import StartScreen
+        self.game.state_machine.switch(StartScreen(self.game))
+    
+    def _update_real_game(self, dt: float):
+        """Update logic for real game phase."""
+        # Update game state (timer, etc.)
         self.game_state.update(dt)
         
         # Check for timer tick (play sound each second)
@@ -233,9 +392,6 @@ class GameScreen(BaseState):
         if current_second != self._last_tick_second and current_second >= 0:
             self._last_tick_second = current_second
             self.game.audio.play_sound(SFX.TIMER_TICK, volume=0.3)
-        
-        # Update status panel
-        self.status_panel.update(dt, self.game_state)
         
         # Update flicker intensity based on strikes
         if self.game_state.strikes >= 2:
@@ -250,15 +406,14 @@ class GameScreen(BaseState):
         strikes = self.game_state.strikes
         
         # Determine flash interval - faster with more strikes or less time
-        # Base interval from strikes
         if strikes >= 2:
             strike_interval = 0.5
         elif strikes >= 1:
             strike_interval = 1.0
         else:
-            strike_interval = 0.0  # No flash from strikes alone
+            strike_interval = 0.0
         
-        # Time-based interval (overrides if faster)
+        # Time-based interval
         if time_remaining < 30:
             time_interval = 0.2
         elif time_remaining < 60:
@@ -266,9 +421,9 @@ class GameScreen(BaseState):
         elif time_remaining < 120:
             time_interval = 0.8
         else:
-            time_interval = 0.0  # No flash from time alone
+            time_interval = 0.0
         
-        # Use the faster of the two (smaller non-zero interval)
+        # Use the faster of the two
         if strike_interval > 0 and time_interval > 0:
             flash_interval = min(strike_interval, time_interval)
         else:
@@ -282,14 +437,29 @@ class GameScreen(BaseState):
         else:
             self._border_flash_on = True
             self._border_flash_timer = 0.0
-        
-        # Update modules
-        for module in self.modules:
-            module.update(dt)
     
     def handle_event(self, event: pygame.event.Event):
         """Handle input events."""
         if self.game_state.game_over:
+            return
+        
+        # Reset inactivity timer on any input during training
+        if self.game_state.phase == GamePhase.TRAINING:
+            if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION):
+                self._inactivity_timer = 0.0
+        
+        # Handle exit confirmation modal
+        if self._show_exit_training_modal:
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_y, pygame.K_RETURN):
+                    self._return_to_start()
+                elif event.key in (pygame.K_n, pygame.K_ESCAPE):
+                    self._show_exit_training_modal = False
+            return
+        
+        # ESC key shows exit confirmation (works at any time)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            self._show_exit_training_modal = True
             return
         
         # Handle module events
@@ -300,7 +470,20 @@ class GameScreen(BaseState):
                 module.handle_event(event, cx, cy)
     
     def _get_outer_border_color(self) -> int:
-        """Get outer border color based on strikes and time, with flashing."""
+        """Get outer border color based on game phase, strikes, and time."""
+        phase = self.game_state.phase
+        
+        # During training phases, use phase-appropriate colors
+        if phase == GamePhase.TRAINING:
+            return Color.GREEN  # Calm training mode
+        elif phase == GamePhase.TRAINING_COMPLETE:
+            # Celebratory flash
+            return Color.LIGHT_GREEN if self._modal_flash_on else Color.GREEN
+        elif phase == GamePhase.EMERGENCY_WARNING:
+            # Urgent red flashing
+            return Color.LIGHT_RED if self._screen_flash_active else Color.RED
+        
+        # Real game - normal logic
         strikes = self.game_state.strikes
         time_remaining = self.game_state.time_remaining
         
@@ -325,9 +508,18 @@ class GameScreen(BaseState):
         border_color = self._get_outer_border_color()
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, border_color)
         
-        # Header
-        header = "████  NÜCLEAR SOLUTIONS - MAINTENANCE ROOM 7-G  ████"
-        buffer.put_string_centered(1, header, Color.LIGHT_GREEN)
+        # Header - changes based on phase
+        phase = self.game_state.phase
+        if phase == GamePhase.TRAINING or phase == GamePhase.TRAINING_COMPLETE:
+            header = "████  NÜCLEAR SOLUTIONS - TRAINING SIMULATION  ████"
+            header_color = Color.LIGHT_CYAN
+        elif phase == GamePhase.EMERGENCY_WARNING:
+            header = "████  ⚠ EMERGENCY ALERT - REAL INCIDENT ⚠  ████"
+            header_color = Color.LIGHT_RED if self._screen_flash_active else Color.RED
+        else:
+            header = "████  NÜCLEAR SOLUTIONS - MAINTENANCE ROOM 7-G  ████"
+            header_color = Color.LIGHT_GREEN
+        buffer.put_string_centered(1, header, header_color)
         
         # Render module grid (left side)
         self._render_modules(buffer)
@@ -337,12 +529,26 @@ class GameScreen(BaseState):
         
         # Render edgework panel (bottom)
         self.edgework_panel.render(buffer, self.game_state)
+        
+        # Render phase-specific modals on top
+        if phase == GamePhase.TRAINING_COMPLETE:
+            self._render_training_complete_modal(buffer)
+        elif phase == GamePhase.EMERGENCY_WARNING:
+            self._render_emergency_warning_modal(buffer)
+        
+        # Render exit training confirmation modal
+        if self._show_exit_training_modal:
+            self._render_exit_training_modal(buffer)
     
     def _render_modules(self, buffer: "TextBuffer"):
         """Render the 2x3 module grid with blanking plates for empty slots."""
         # Render actual modules
-        for module in self.modules:
-            module.render(buffer)
+        for i, module in enumerate(self.modules):
+            # During training phases, render disabled modules specially
+            if not module.active and self.game_state.is_training:
+                self._render_disabled_training_module(buffer, module)
+            else:
+                module.render(buffer)
         
         # Render blanking plates for empty positions
         for row in range(2):
@@ -383,3 +589,183 @@ class GameScreen(BaseState):
         label = "▒ NOT INSTALLED ▒"
         label_x = x + (w - len(label)) // 2
         buffer.put_string(label_x, center_y, label, Color.DARK_GRAY)
+    
+    def _render_disabled_training_module(self, buffer: "TextBuffer", module: BaseModule):
+        """Render a disabled module during training (yellow 'DISABLED FOR TRAINING' style)."""
+        x, y = module.x, module.y
+        w = self.MODULE_WIDTH
+        h = self.MODULE_HEIGHT
+        
+        # Outer border (single line, yellow) - no title bar during training
+        draw_box(buffer, x, y, w, h, SINGLE, Color.YELLOW)
+        
+        # Fill interior with subtle yellow pattern
+        for row in range(1, h - 1):
+            for col in range(1, w - 1):
+                if (row + col) % 4 == 0:
+                    buffer.put_char(x + col, y + row, '·', Color.YELLOW)
+                elif (row + col) % 4 == 2:
+                    buffer.put_char(x + col, y + row, '∙', Color.YELLOW)
+                else:
+                    buffer.put_char(x + col, y + row, ' ', Color.BLACK)
+        
+        # Corner rivets (yellow)
+        buffer.put_char(x + 2, y + 2, 'o', Color.YELLOW)
+        buffer.put_char(x + w - 3, y + 2, 'o', Color.YELLOW)
+        buffer.put_char(x + 2, y + h - 3, 'o', Color.YELLOW)
+        buffer.put_char(x + w - 3, y + h - 3, 'o', Color.YELLOW)
+        
+        # Center labels
+        center_y = y + h // 2
+        label1 = "▒ DISABLED ▒"
+        label2 = "FOR TRAINING"
+        buffer.put_string(x + (w - len(label1)) // 2, center_y - 1, label1, Color.LIGHT_YELLOW)
+        buffer.put_string(x + (w - len(label2)) // 2, center_y + 1, label2, Color.YELLOW)
+    
+    def _render_training_complete_modal(self, buffer: "TextBuffer"):
+        """Render the 'TRAINING COMPLETE' congratulations modal."""
+        modal_width = 60
+        modal_height = 13
+        modal_x = (buffer.width - modal_width) // 2
+        modal_y = (buffer.height - modal_height) // 2
+        
+        # Dim background
+        buffer.fill_rect(modal_x - 1, modal_y - 1, modal_width + 2, modal_height + 2,
+                        '░', Color.DARK_GRAY, Color.BLACK)
+        
+        # Clear modal interior
+        buffer.fill_rect(modal_x, modal_y, modal_width, modal_height,
+                        ' ', Color.LIGHT_GREEN, Color.BLACK)
+        
+        # Draw border (flashing green)
+        border_color = Color.LIGHT_GREEN if self._modal_flash_on else Color.GREEN
+        draw_box(buffer, modal_x, modal_y, modal_width, modal_height, DOUBLE, border_color)
+        
+        # Title
+        title = " TRAINING COMPLETE "
+        title_x = modal_x + (modal_width - len(title)) // 2
+        buffer.put_string(title_x, modal_y, title, Color.LIGHT_GREEN)
+        
+        # Content
+        lines = [
+            "",
+            "Congratulations, Recruits!",
+            "",
+            "You have successfully completed the",
+            "mandatory safety certification exercise.",
+            "",
+            "Logging success, please stand by...",
+        ]
+        
+        for i, line in enumerate(lines):
+            if "Congratulations" in line:
+                color = Color.LIGHT_YELLOW
+            elif "Logging success" in line:
+                color = Color.DARK_GRAY
+            else:
+                color = Color.LIGHT_GREEN
+            buffer.put_string(modal_x + (modal_width - len(line)) // 2, modal_y + 2 + i, line, color)
+    
+    def _render_emergency_warning_modal(self, buffer: "TextBuffer"):
+        """Render the emergency warning modal with dramatic red styling."""
+        modal_width = 70
+        modal_height = 15
+        modal_x = (buffer.width - modal_width) // 2
+        modal_y = (buffer.height - modal_height) // 2
+        
+        # Red-tinted background for urgency
+        bg_char = '▓' if self._screen_flash_active else '░'
+        buffer.fill_rect(modal_x - 1, modal_y - 1, modal_width + 2, modal_height + 2,
+                        bg_char, Color.RED, Color.BLACK)
+        
+        # Clear modal interior
+        buffer.fill_rect(modal_x, modal_y, modal_width, modal_height,
+                        ' ', Color.LIGHT_RED, Color.BLACK)
+        
+        # Draw border (flashing red)
+        border_color = Color.LIGHT_RED if self._modal_flash_on else Color.RED
+        draw_box(buffer, modal_x, modal_y, modal_width, modal_height, DOUBLE, border_color)
+        
+        # Title
+        title = " ⚠ EMERGENCY ALERT ⚠ "
+        title_x = modal_x + (modal_width - len(title)) // 2
+        buffer.put_string(title_x, modal_y, title, Color.LIGHT_RED)
+        
+        # Content
+        lines = [
+            "",
+            "THIS IS NOT A DRILL",
+            "",
+            "MASSIVE COOLANT LEAK",
+            "",
+            "T-MINUS 4:00 TO MELTDOWN",
+            "",
+            "REPAIR ALL MODULES BEFORE MELTDOWN",
+        ]
+        
+        for i, line in enumerate(lines):
+            if "NOT A DRILL" in line or "MELTDOWN" in line:
+                color = Color.LIGHT_YELLOW if self._screen_flash_active else Color.YELLOW
+            elif "═" in line:
+                color = Color.RED
+            else:
+                color = Color.LIGHT_RED if self._screen_flash_active else Color.RED
+            buffer.put_string(modal_x + (modal_width - len(line)) // 2, modal_y + 2 + i, line, color)
+    
+    def _render_exit_training_modal(self, buffer: "TextBuffer"):
+        """Render the exit/abandon shift confirmation modal."""
+        modal_width = 54
+        modal_height = 11
+        modal_x = (buffer.width - modal_width) // 2
+        modal_y = (buffer.height - modal_height) // 2
+        
+        # Dim background
+        buffer.fill_rect(modal_x - 1, modal_y - 1, modal_width + 2, modal_height + 2,
+                        '░', Color.DARK_GRAY, Color.BLACK)
+        
+        # Clear modal interior
+        buffer.fill_rect(modal_x, modal_y, modal_width, modal_height,
+                        ' ', Color.LIGHT_YELLOW, Color.BLACK)
+        
+        # Draw border
+        draw_box(buffer, modal_x, modal_y, modal_width, modal_height, DOUBLE, Color.LIGHT_YELLOW)
+        
+        # Title and content change based on phase
+        is_training = self.game_state.is_training
+        
+        title = " EXIT TRAINING " if is_training else " ABANDON SHIFT "
+        title_x = modal_x + (modal_width - len(title)) // 2
+        buffer.put_string(title_x, modal_y, title, Color.LIGHT_YELLOW)
+        
+        # Content
+        if is_training:
+            lines = [
+                "",
+                "Abandon training exercise?",
+                "",
+                "Your progress will not be saved.",
+                "(There was no progress to save anyway.)",
+                "",
+                "[Y] Yes, abandon    [N] No, continue",
+            ]
+        else:
+            lines = [
+                "",
+                "Abandon your shift?",
+                "",
+                "The reactor WILL melt down without you.",
+                "(HR will be notified of your desertion.)",
+                "",
+                "[Y] Yes, flee    [N] No, stay",
+            ]
+        
+        for i, line in enumerate(lines):
+            if "Abandon" in line or "shift" in line:
+                color = Color.LIGHT_YELLOW
+            elif "[Y]" in line:
+                color = Color.LIGHT_CYAN
+            elif "progress" in line.lower() or "HR" in line or "melt down" in line:
+                color = Color.DARK_GRAY
+            else:
+                color = Color.LIGHT_GREEN
+            buffer.put_string(modal_x + (modal_width - len(line)) // 2, modal_y + 2 + i, line, color)

@@ -122,6 +122,15 @@ class ReactorStatusPanel:
         """Update the panel state."""
         time_remaining = game_state.time_remaining
         
+        # During training, skip timer/flash updates
+        if not game_state.show_timer_and_errors:
+            self.timer_flash_on = True
+            self.flash_on = True
+            self.temp_gauge.set_value(0.1)  # Low temp during training
+            # Still update messages
+            self._update_messages(dt)
+            return
+        
         # Update timer flash based on time remaining
         # Flash faster as time gets lower: 4min=2s, 3min=1.5s, 2min=1s, 1min=0.5s, 30s=0.25s
         if time_remaining < 30:
@@ -156,6 +165,23 @@ class ReactorStatusPanel:
         # Update temperature
         self.temp_gauge.set_value(game_state.temperature)
         
+        # Update messages
+        self._update_messages(dt)
+        
+        # Update border flash timer based on strikes
+        if game_state.strikes >= 1:
+            flash_interval = 0.5 if game_state.strikes >= 2 else 1.0
+            self.flash_timer += dt
+            if self.flash_timer >= flash_interval:
+                self.flash_timer = 0.0
+                self.flash_on = not self.flash_on
+        else:
+            # Reset flash state when no strikes
+            self.flash_timer = 0.0
+            self.flash_on = True
+    
+    def _update_messages(self, dt: float):
+        """Update the status message log."""
         # Animate scroll offset toward 0 (fully visible)
         if self.scroll_offset > 0:
             self.scroll_offset = max(0, self.scroll_offset - self.scroll_speed * dt)
@@ -173,18 +199,6 @@ class ReactorStatusPanel:
             wrapped = self._wrap_message(new_msg, max_width, "> ")
             # Set scroll offset to hide new message initially (lines + blank line)
             self.scroll_offset = len(wrapped) + 1
-        
-        # Update border flash timer based on strikes
-        if game_state.strikes >= 1:
-            flash_interval = 0.5 if game_state.strikes >= 2 else 1.0
-            self.flash_timer += dt
-            if self.flash_timer >= flash_interval:
-                self.flash_timer = 0.0
-                self.flash_on = not self.flash_on
-        else:
-            # Reset flash state when no strikes
-            self.flash_timer = 0.0
-            self.flash_on = True
     
     def _get_timer_color(self, time_remaining: float) -> int:
         """Get timer color based on urgency, with flashing."""
@@ -221,25 +235,40 @@ class ReactorStatusPanel:
     
     def render(self, buffer: "TextBuffer", game_state: "GameState"):
         """Render the reactor status panel."""
-        # Panel frame - color changes based on strike count
-        border_color = self._get_border_color(game_state.strikes)
+        # Panel frame - color changes based on strike count (green during training)
+        if game_state.show_timer_and_errors:
+            border_color = self._get_border_color(game_state.strikes)
+        else:
+            border_color = Color.GREEN
+        
+        # Title changes during training
+        title = "REACTOR STATUS" if game_state.show_timer_and_errors else "TRAINING STATUS"
         draw_titled_box(buffer, self.x, self.y, self.width, self.height,
-                       "REACTOR STATUS", DOUBLE, border_color, Color.LIGHT_CYAN)
+                       title, DOUBLE, border_color, Color.LIGHT_CYAN)
         
-        # Timer
-        buffer.put_string(self.x + 2, self.y + 2, "TIME:", Color.LIGHT_GREEN)
-        self.timer.render(buffer)
+        # Timer - hidden during training
+        if game_state.show_timer_and_errors:
+            buffer.put_string(self.x + 2, self.y + 2, "TIME:", Color.LIGHT_GREEN)
+            self.timer.render(buffer)
+        else:
+            buffer.put_string(self.x + 2, self.y + 2, "TIME:", Color.DARK_GRAY)
+            buffer.put_string(self.x + 10, self.y + 2, "──:──", Color.DARK_GRAY)
+            buffer.put_string(self.x + 17, self.y + 2, "(TRAINING MODE)", Color.YELLOW)
         
-        # Strikes
-        buffer.put_string(self.x + 2, self.y + 4, "ERRORS:", Color.LIGHT_GREEN)
-        self.strike_indicator.render(buffer)
+        # Strikes - hidden during training
+        if game_state.show_timer_and_errors:
+            buffer.put_string(self.x + 2, self.y + 4, "ERRORS:", Color.LIGHT_GREEN)
+            self.strike_indicator.render(buffer)
+        else:
+            buffer.put_string(self.x + 2, self.y + 4, "ERRORS:", Color.DARK_GRAY)
+            buffer.put_string(self.x + 10, self.y + 4, "[─] [─] [─]", Color.DARK_GRAY)
         
         # Module progress (below errors, with blank line)
         buffer.put_string(self.x + 2, self.y + 6, "FIXED:", Color.LIGHT_GREEN)
         self.module_progress.set_progress(game_state.modules_solved, game_state.modules_total)
         self.module_progress.render(buffer)
         
-        # Temperature (inline with label)
+        # Temperature (inline with label) - always shown but low during training
         buffer.put_string(self.x + 2, self.y + 8, "TEMP:", Color.LIGHT_GREEN)
         self.temp_gauge.render(buffer)
         

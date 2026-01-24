@@ -10,6 +10,14 @@ from src.modules.base_module import BaseModule
 from src.terminal.colors import Color
 from src.audio.audio_manager import SFX
 
+# Simon Says tone sounds for each color (low to high pitch)
+COLOR_TONES = {
+    'red': SFX.SIMON_TONE_RED,
+    'blue': SFX.SIMON_TONE_BLUE,
+    'green': SFX.SIMON_TONE_GREEN,
+    'yellow': SFX.SIMON_TONE_YELLOW,
+}
+
 if TYPE_CHECKING:
     from src.terminal.text_buffer import TextBuffer
     from src.core.game_state import GameState
@@ -73,6 +81,9 @@ class RodAlignmentModule(BaseModule):
         # Watch button cooldown
         self.watch_cooldown = 0.0  # Seconds remaining before WATCH can be clicked
         self.WATCH_COOLDOWN_TIME = 10.0  # Cooldown duration in seconds
+        
+        # Stage flash effect
+        self.stage_flash_timer = 0.0  # Time remaining for white flash on stage text
     
     def _generate_puzzle(self):
         """Generate the sequence."""
@@ -115,6 +126,10 @@ class RodAlignmentModule(BaseModule):
         if self.watch_cooldown > 0:
             self.watch_cooldown = max(0, self.watch_cooldown - dt)
         
+        # Update stage flash timer
+        if self.stage_flash_timer > 0:
+            self.stage_flash_timer = max(0, self.stage_flash_timer - dt)
+        
         if self.state == self.State.SHOWING:
             self.show_timer += dt
             
@@ -136,6 +151,10 @@ class RodAlignmentModule(BaseModule):
                     
                     if self.show_index <= self.current_stage:
                         self.active_color = self.sequence[self.show_index]
+                        # Play the tone for this color
+                        tone = COLOR_TONES.get(self.active_color)
+                        if tone:
+                            self.play_sound(tone)
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle color button press."""
@@ -144,9 +163,8 @@ class RodAlignmentModule(BaseModule):
             if self.state == self.State.INPUT and self.watch_cooldown <= 0:
                 self._start_showing()
                 self.watch_cooldown = self.WATCH_COOLDOWN_TIME
-                self.play_sound(SFX.BUTTON_CLICK)
                 return True
-            elif self.watch_cooldown > 0:
+            elif self.state == self.State.INPUT and self.watch_cooldown > 0:
                 self.play_sound(SFX.BUTTON_ERROR)
                 return True
         
@@ -172,6 +190,10 @@ class RodAlignmentModule(BaseModule):
             pressed_color = 'yellow'
         
         if pressed_color:
+            # Play the tone for the pressed color
+            tone = COLOR_TONES.get(pressed_color)
+            if tone:
+                self.play_sound(tone)
             self._press_color(pressed_color)
             return True
         
@@ -185,7 +207,6 @@ class RodAlignmentModule(BaseModule):
         
         # Flash the pressed button briefly
         self.active_color = color
-        self.play_sound(SFX.ROD_MOVE)
         
         if color == expected_color:
             self.input_index += 1
@@ -199,6 +220,9 @@ class RodAlignmentModule(BaseModule):
                 if self.current_stage >= self.max_stages:
                     self.solve()
                 else:
+                    # Stage complete (but not final) - play sound and flash
+                    self.play_sound(SFX.PATH_COMPLETE)
+                    self.stage_flash_timer = 0.5  # Flash for 0.5 seconds
                     # Start next stage with cooldown
                     self._start_showing()
                     self.watch_cooldown = self.WATCH_COOLDOWN_TIME
@@ -242,17 +266,34 @@ class RodAlignmentModule(BaseModule):
         stage_y = self.y + 9
         total_stages = self.max_stages - 1  # 4 stages (skipping 1-color stage)
         display_stage = min(self.current_stage, total_stages)
-        buffer.put_string(self.x + 3, stage_y, f"STAGE: {display_stage}/{total_stages}", Color.LIGHT_CYAN)
+        # Flash white when stage advances
+        stage_color = Color.WHITE if self.stage_flash_timer > 0 else Color.LIGHT_CYAN
+        buffer.put_string(self.x + 3, stage_y, f"STAGE: {display_stage}/{total_stages}", stage_color)
         
-        # WATCH button / state indicator
+        # WATCH button / state indicator with border
+        btn_x = self.x + 15
+        btn_y = stage_y - 1  # Top border above stage line
+        
         if self.state == self.State.SHOWING:
             # Currently showing sequence
-            buffer.put_string(self.x + 15, stage_y, "[SHOWING]", Color.LIGHT_YELLOW)
+            btn_color = Color.LIGHT_YELLOW
+            btn_text = "SHOWING"
         elif self.state == self.State.INPUT:
             if self.watch_cooldown > 0:
                 # Cooldown active - show remaining time
-                cooldown_text = f"[WAIT {int(self.watch_cooldown) + 1}s]"
-                buffer.put_string(self.x + 15, stage_y, cooldown_text, Color.DARK_GRAY)
+                btn_color = Color.DARK_GRAY
+                btn_text = f"WAIT {int(self.watch_cooldown) + 1}s"
             else:
                 # Ready to watch - clickable button
-                buffer.put_string(self.x + 15, stage_y, "[ WATCH ]", Color.LIGHT_GREEN)
+                btn_color = Color.LIGHT_GREEN
+                btn_text = " WATCH "
+        else:
+            # IDLE state fallback
+            btn_color = Color.DARK_GRAY
+            btn_text = " WATCH "
+        
+        # Draw bordered button (9 chars wide interior)
+        btn_text = btn_text.center(9)
+        buffer.put_string(btn_x, btn_y, "┌─────────┐", btn_color)
+        buffer.put_string(btn_x, btn_y + 1, f"│{btn_text}│", btn_color)
+        buffer.put_string(btn_x, btn_y + 2, "└─────────┘", btn_color)

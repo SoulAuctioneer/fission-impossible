@@ -7,6 +7,14 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
         
+        /* IBM VGA font for symbols - matches the in-game display exactly */
+        @font-face {
+            font-family: 'IBM VGA';
+            src: url('../assets/fonts/PxPlus_IBM_VGA8.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
         :root {
             --bg-color: #0a0a0a;
             --text-color: #33ff33;
@@ -161,6 +169,7 @@
         .color-green { background: #55ff55; }
         
         .symbol {
+            font-family: 'IBM VGA', monospace;
             font-size: 1.5em;
             display: inline-block;
             width: 40px;
@@ -227,7 +236,7 @@
         <h2>Table of Contents</h2>
         <ul>
             <li>1. <a href="#intro">Introduction</a></li>
-            <li>2. <a href="#coolant">Coolant Bypass Valves</a></li>
+            <li>2. <a href="#coolant">Coolant Bypass</a></li>
             <li>3. <a href="#override">Emergency Override</a></li>
             <li>4. <a href="#vents">Vent Codes</a></li>
             <li>5. <a href="#rods">Rod Alignment</a></li>
@@ -256,7 +265,7 @@
     </section>
 
     <section id="coolant" class="section">
-        <h2>2. Coolant Bypass Valves</h2>
+        <h2>2. Coolant Bypass</h2>
         <p>The module displays 3-6 colored pipes. Close <strong>ONE</strong> valve to restore nominal flow.</p>
         
         <div class="danger">
@@ -346,7 +355,11 @@
         <!-- Symbol mapping (all CP437 compatible):
              Ω = omega/radiation, ♦ = diamond, ♥ = heart, § = section/lightning
              ☼ = sun, ± = plus-minus, ° = degree/temp, ◙ = target
-             ‼ = warning, φ = phi/empty, ♣ = club, ♠ = spade -->
+             ‼ = warning, φ = phi/empty, ♣ = club, ♠ = spade
+             
+             Design: 12 symbols split into 4 groups, columns are group pairs.
+             Groups: A={Ω,♦,♥}, B={§,☼,±}, C={°,◙,‼}, D={φ,♣,♠}
+             This guarantees any 4 symbols uniquely identify one column. -->
         <table>
             <tr>
                 <th>Column 1</th>
@@ -358,59 +371,51 @@
             </tr>
             <tr>
                 <td><span class="symbol">Ω</span></td>
-                <td><span class="symbol">◙</span></td>
-                <td><span class="symbol">♣</span></td>
-                <td><span class="symbol">♠</span></td>
-                <td><span class="symbol">☼</span></td>
-                <td><span class="symbol">♠</span></td>
-            </tr>
-            <tr>
-                <td><span class="symbol">♦</span></td>
-                <td><span class="symbol">Ω</span></td>
-                <td><span class="symbol">§</span></td>
-                <td><span class="symbol">‼</span></td>
-                <td><span class="symbol">φ</span></td>
-                <td><span class="symbol">◙</span></td>
-            </tr>
-            <tr>
-                <td><span class="symbol">♥</span></td>
                 <td><span class="symbol">°</span></td>
-                <td><span class="symbol">°</span></td>
-                <td><span class="symbol">φ</span></td>
                 <td><span class="symbol">♣</span></td>
-                <td><span class="symbol">φ</span></td>
-            </tr>
-            <tr>
                 <td><span class="symbol">§</span></td>
-                <td><span class="symbol">‼</span></td>
-                <td><span class="symbol">‼</span></td>
-                <td><span class="symbol">☼</span></td>
-                <td><span class="symbol">§</span></td>
-                <td><span class="symbol">♦</span></td>
-            </tr>
-            <tr>
-                <td><span class="symbol">☼</span></td>
-                <td><span class="symbol">♦</span></td>
-                <td><span class="symbol">☼</span></td>
-                <td><span class="symbol">♥</span></td>
-                <td><span class="symbol">‼</span></td>
-                <td><span class="symbol">±</span></td>
-            </tr>
-            <tr>
-                <td><span class="symbol">±</span></td>
-                <td><span class="symbol">±</span></td>
-                <td><span class="symbol">♥</span></td>
                 <td><span class="symbol">♣</span></td>
-                <td><span class="symbol">◙</span></td>
-                <td><span class="symbol">§</span></td>
+                <td><span class="symbol">°</span></td>
             </tr>
             <tr>
-                <td><span class="symbol">°</span></td>
-                <td><span class="symbol">φ</span></td>
-                <td><span class="symbol">♦</span></td>
                 <td><span class="symbol">§</span></td>
                 <td><span class="symbol">Ω</span></td>
+                <td><span class="symbol">Ω</span></td>
+                <td><span class="symbol">°</span></td>
+                <td><span class="symbol">§</span></td>
                 <td><span class="symbol">♣</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">♠</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">φ</span></td>
+                <td><span class="symbol">◙</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">◙</span></td>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">◙</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">φ</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">φ</span></td>
+                <td><span class="symbol">±</span></td>
+                <td><span class="symbol">♠</span></td>
+                <td><span class="symbol">‼</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">±</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">±</span></td>
+                <td><span class="symbol">♠</span></td>
             </tr>
         </table>
     </section>
@@ -728,7 +733,6 @@
                 <div class="maze-cell"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (3,3) and (5,3)</div>
         </div>
 
         <div class="maze-container">
@@ -779,7 +783,6 @@
                 <div class="maze-cell"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (0,0) and (0,3)</div>
         </div>
 
         <div class="maze-container">
@@ -830,7 +833,6 @@
                 <div class="maze-cell"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (4,2) and (3,5)</div>
         </div>
 
         <div class="maze-container">
@@ -881,7 +883,6 @@
                 <div class="maze-cell wall-right"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (4,0) and (1,5)</div>
         </div>
 
         <div class="maze-container">
@@ -932,7 +933,6 @@
                 <div class="maze-cell wall-right"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (2,0) and (3,2)</div>
         </div>
 
         <div class="maze-container">
@@ -983,7 +983,6 @@
                 <div class="maze-cell wall-right"></div>
                 <div class="maze-cell"></div>
             </div>
-            <div class="maze-markers">◙ at (1,0) and (2,4)</div>
         </div>
 
 

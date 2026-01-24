@@ -10,6 +10,7 @@ from src.terminal.colors import Color
 from src.ui.button import ASCIIButton
 from src.core.input import pixel_to_char
 from src.audio.audio_manager import SFX
+from src.core.settings import SETTINGS
 
 if TYPE_CHECKING:
     from src.core.game import Game
@@ -49,7 +50,8 @@ class StartScreen(BaseState):
     
     def enter(self):
         """Called when entering this state."""
-        pass
+        # Ensure flicker is at nominal (calm) state for start screen
+        self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
     
     def update(self, dt: float):
         """Update start screen."""
@@ -103,28 +105,29 @@ class StartScreen(BaseState):
         content_x = box_x + 3
         briefing = [
             "",
+            "    WELCOME, RECRUITS",
             "",
+            "    Today you will complete mandatory safety certification training.",
+            "    This is a SIMULATED maintenance scenario.",
             "",
-            "    ALERT: Reactor systems experiencing anomalies.",
+            "    ────────────────────────────────────────────────────────────────────────────────────────────────",
             "",
+            "    TECHNICIAN:    Operate the modules on this Maintenance Terminal.",
+            "                   Describe what you see to the Hotline Team.",
             "",
-            "    ───────────────────────────────────────────────────────────────────────────────────────────────",
+            "    HOTLINE TEAM:  Consult the Operations Manual to guide the Technician remotely.",
+            "                   Do NOT look at this Terminal.",
             "",
-            "    TECHNICIAN: Fix all system faults before meltdown. Do NOT look at the manual.",
-            "    HOTLINE:    Consult the Operations Manual to guide the technician. Do NOT look at the terminal.",
-            "",
-            "    ! DO NOT exceed 3 operational errors or reactor will reach critical temperature.",
-            "",
-            "    ───────────────────────────────────────────────────────────────────────────────────────────────",
+            "    ────────────────────────────────────────────────────────────────────────────────────────────────",
             "",
             "",
         ]
         
         for i, line in enumerate(briefing):
             color = Color.LIGHT_GREEN
-            if "ALERT" in line or line.strip().startswith("!"):
+            if "TECHNICIAN:" in line or "Describe what you see to the Hotline Team." in line:
                 color = Color.LIGHT_YELLOW
-            if "Manual" in line:
+            if "HOTLINE TEAM:" in line or "Do NOT look at this Terminal." in line:
                 color = Color.LIGHT_CYAN
             buffer.put_string(content_x, 11 + i, line, color)
         
@@ -132,7 +135,7 @@ class StartScreen(BaseState):
         self.clock_in_btn.render(buffer)
         
         # Instructions
-        instruction = "Click CLOCK IN to begin your shift"
+        instruction = "Click CLOCK IN to begin training"
         buffer.put_string_centered(39, instruction, Color.DARK_GRAY)
         
         # Blinking cursor

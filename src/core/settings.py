@@ -91,11 +91,12 @@ class Settings:
     
     # Text Buffer Effects (character-level, applied to TextBuffer)
     EFFECT_FLICKER: bool = True
-    # Flicker intensity per strike count (0.0-0.1, fraction of chars to flicker)
-    EFFECT_FLICKER_0_STRIKES: float = 0.0       # No flicker at 0 strikes
-    EFFECT_FLICKER_1_STRIKE: float = 0.0015     # Light flicker at 1 strike
-    EFFECT_FLICKER_2_STRIKES: float = 0.007    # More flicker at 2+ strikes
-    EFFECT_FLICKER_FAILURE: float = 0.015      # Heavy flicker on failure screen
+    # Flicker intensity per phase/state (0.0-0.1, fraction of chars to flicker)
+    EFFECT_FLICKER_NOMINAL: float = 0.0       # No flicker - start screen, briefing, menus
+    EFFECT_FLICKER_0_STRIKES: float = 0.0     # Emergency phase with 0 strikes
+    EFFECT_FLICKER_1_STRIKE: float = 0.0015   # Emergency phase with 1 strike
+    EFFECT_FLICKER_2_STRIKES: float = 0.007   # Emergency phase with 2+ strikes
+    EFFECT_FLICKER_FAILURE: float = 0.0015    # Heavy flicker on failure screen
     EFFECT_STATIC_NOISE: bool = True
     EFFECT_STATIC_INTENSITY: float = 0.15      # 0.0-0.3, fraction of chars during static burst
     EFFECT_STATIC_DURATION: float = 0.4      # Duration of static burst on strike (seconds)

@@ -221,7 +221,7 @@ Instead of "bomb modules," we have **Plant Systems** that are malfunctioning. Ea
 
 | Original | Fission Impossible Version | Flavor |
 |----------|---------------------------|--------|
-| Wires | **Coolant Bypass Valves** | Color-coded pipes. The color codes were changed in '76 but not all the pipes were updated. |
+| Wires | **Coolant Bypass** | Color-coded pipes. The color codes were changed in '76 but not all the pipes were updated. |
 | The Button | **Emergency Override** | Big red button. Does something. Manual has 4 pages on when NOT to press it. |
 | Simon Says | **Control Rod Sequence** | Lights indicate rod positions. Must be adjusted in order. The order changes based on the reactor's "mood." |
 | Keypads | **Containment Door Lock** | Symbols are faded. Some are in Cyrillic. Nobody knows why. |

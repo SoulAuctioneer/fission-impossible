@@ -2,8 +2,24 @@
 Game state management for tracking timer, strikes, modules, and edgework.
 """
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from typing import Dict, List, Callable, Optional
 from src.core.settings import SETTINGS
+
+
+class GamePhase(Enum):
+    """
+    Game phases for the training-to-real-emergency progression.
+    
+    TRAINING: Initial state - only one module active, timer/errors hidden
+    TRAINING_COMPLETE: First module solved - show congratulations modal
+    EMERGENCY_WARNING: Klaxon + warning modal - dramatic transition
+    REAL_GAME: Full game mode - all modules active, timer running
+    """
+    TRAINING = auto()
+    TRAINING_COMPLETE = auto()
+    EMERGENCY_WARNING = auto()
+    REAL_GAME = auto()
 
 
 @dataclass
@@ -44,6 +60,9 @@ class GameState:
     Tracks all runtime game data and provides signals for state changes.
     """
     
+    # Real game time after emergency (4 minutes)
+    REAL_GAME_TIME: float = 240.0
+    
     def __init__(self):
         # Timer
         self.time_remaining: float = SETTINGS.STARTING_TIME
@@ -67,21 +86,28 @@ class GameState:
         self.game_over: bool = False
         self.victory: bool = False
         
+        # Training mode state
+        self.phase: GamePhase = GamePhase.TRAINING
+        self.training_module_index: int = 0  # Which module is the training module
+        
         # Callbacks for state changes
         self._on_strike_callbacks: List[Callable[[int], None]] = []
         self._on_solve_callbacks: List[Callable[[int], None]] = []
         self._on_game_over_callbacks: List[Callable[[bool], None]] = []
+        self._on_phase_change_callbacks: List[Callable[[GamePhase], None]] = []
     
     def reset(self):
         """Reset game state for a new game."""
         self.time_remaining = SETTINGS.STARTING_TIME
-        self.timer_paused = False
+        self.timer_paused = True  # Paused during training
         self.strikes = 0
         self.temperature = 0.0
         self.modules_total = 0  # Will be set by game screen after module generation
         self.modules_solved = 0
         self.game_over = False
         self.victory = False
+        self.phase = GamePhase.TRAINING
+        self.training_module_index = 0
     
     def update(self, dt: float):
         """Update game state. dt is delta time in seconds."""
@@ -152,6 +178,37 @@ class GameState:
         """Register callback for game over events."""
         self._on_game_over_callbacks.append(callback)
     
+    def on_phase_change(self, callback: Callable[["GamePhase"], None]):
+        """Register callback for phase change events."""
+        self._on_phase_change_callbacks.append(callback)
+    
+    def set_phase(self, new_phase: "GamePhase"):
+        """Change the game phase and notify callbacks."""
+        if self.phase != new_phase:
+            self.phase = new_phase
+            for callback in self._on_phase_change_callbacks:
+                callback(new_phase)
+    
+    def start_real_game(self):
+        """Transition from training to real game mode."""
+        self.phase = GamePhase.REAL_GAME
+        self.time_remaining = self.REAL_GAME_TIME  # 3 minutes
+        self.timer_paused = False
+        self.strikes = 0  # Reset strikes for real game
+        # Notify phase change
+        for callback in self._on_phase_change_callbacks:
+            callback(self.phase)
+    
+    @property
+    def is_training(self) -> bool:
+        """Check if we're in any training phase (not real game)."""
+        return self.phase != GamePhase.REAL_GAME
+    
+    @property
+    def show_timer_and_errors(self) -> bool:
+        """Whether to show timer and error indicators."""
+        return self.phase == GamePhase.REAL_GAME
+    
     @property
     def time_formatted(self) -> str:
         """Get time remaining as MM:SS string."""
@@ -159,7 +216,14 @@ class GameState:
         secs = int(self.time_remaining) % 60
         return f"{mins:02d}:{secs:02d}"
     
-    @property
-    def timer_digit(self) -> int:
-        """Get the current ones digit of the timer (for button module)."""
-        return int(self.time_remaining) % 10
+    def timer_contains_digit(self, digit: int) -> bool:
+        """Check if the timer display contains a specific digit (for button module)."""
+        mins = int(self.time_remaining) // 60
+        secs = int(self.time_remaining) % 60
+        # Check all four digits of MM:SS display
+        return (
+            mins // 10 == digit or
+            mins % 10 == digit or
+            secs // 10 == digit or
+            secs % 10 == digit
+        )

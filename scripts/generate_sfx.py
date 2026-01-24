@@ -217,15 +217,44 @@ SOUND_EFFECTS = [
     # ═══════════════════════════════════════════════════════════════════════════
     SoundEffect(
         name="rod_move",
-        prompt="Control rod moving, heavy mechanical sliding, industrial hydraulics, metal scraping",
+        prompt="Soft mechanical slide, gentle servo motor, smooth hydraulic movement, quiet precision",
         duration=0.8,
         category="modules",
     ),
     SoundEffect(
         name="rod_lock",
-        prompt="Control rod locked in position, heavy mechanical clunk, metal locking mechanism",
+        prompt="Positive confirmation click, satisfying lock-in sound, gentle success chime, soft mechanical snap",
         duration=0.5,
         category="modules",
+    ),
+    # Simon Says tones - ascending pitch (red=lowest, yellow=highest)
+    SoundEffect(
+        name="simon_tone_red",
+        prompt="Electronic tone, Simon Says game sound, E3 note synthesizer beep, retro game tone, clean sine wave",
+        duration=0.5,
+        category="modules",
+        prompt_influence=0.4,
+    ),
+    SoundEffect(
+        name="simon_tone_blue",
+        prompt="Electronic tone, Simon Says game sound, A3 note synthesizer beep, retro game tone, clean sine wave",
+        duration=0.5,
+        category="modules",
+        prompt_influence=0.4,
+    ),
+    SoundEffect(
+        name="simon_tone_green",
+        prompt="Medium-high electronic tone, Simon Says game sound, C#4 note synthesizer beep, retro game tone, clean sine wave",
+        duration=0.5,
+        category="modules",
+        prompt_influence=0.4,
+    ),
+    SoundEffect(
+        name="simon_tone_yellow",
+        prompt="High electronic tone, Simon Says game sound, E4 note synthesizer beep, retro game tone, clean sine wave",
+        duration=0.5,
+        category="modules",
+        prompt_influence=0.4,
     ),
 
     # ═══════════════════════════════════════════════════════════════════════════
@@ -296,9 +325,16 @@ SOUND_EFFECTS = [
     ),
     SoundEffect(
         name="alarm_siren",
-        prompt="Nuclear plant warning siren, emergency klaxon, rotating alarm, industrial warning",
+        prompt="Nuclear plant warning siren, emergency klaxon, rotating alarm, industrial warning, but SLOW and mellow, not too loud or urgent",
         duration=3.0,
         category="ambient",
+    ),
+    SoundEffect(
+        name="emergency_klaxon",
+        prompt="Nuclear emergency klaxon alarm, loud pulsing siren, catastrophic warning horn, industrial disaster alert, continuous wailing alarm, Red Alert klaxon",
+        duration=7.0,
+        category="game",
+        prompt_influence=0.4,
     ),
     SoundEffect(
         name="coolant_flow",

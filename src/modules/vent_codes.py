@@ -21,18 +21,26 @@ class VentCodesModule(BaseModule):
     Press 4 symbols in the correct order based on column rules.
     """
     
-    # Symbol columns (from original game, with nuclear-themed symbols)
+    # Symbol columns - designed using combinatorial block design
     # Each column defines the order symbols should be pressed
+    # 
+    # Design: 12 symbols split into 4 groups of 3, columns are group pairs.
+    # This guarantees any two columns share at most 3 symbols, so any
+    # 4-symbol selection uniquely identifies exactly one column.
+    #
+    # Groups: A={Ω,♦,♥}, B={§,☼,±}, C={°,◙,‼}, D={φ,♣,♠}
+    # Col1=A∪B, Col2=A∪C, Col3=A∪D, Col4=B∪C, Col5=B∪D, Col6=C∪D
+    #
     # NOTE: Using only CP437-compatible characters for IBM VGA font:
     # Ω (0xEA), ♦ (0x04), ♥ (0x03), § (0x15), ☼ (0x0F), ± (0xF1),
     # ° (0xF8), ◙ (0x0A), ‼ (0x13), φ (0xED), ♣ (0x05), ♠ (0x06)
     COLUMNS = [
-        ['Ω', '♦', '♥', '§', '☼', '±', '°'],
-        ['◙', 'Ω', '°', '‼', '♦', '±', 'φ'],
-        ['♣', '§', '°', '‼', '☼', '♥', '♦'],
-        ['♠', '‼', 'φ', '☼', '♥', '♣', '§'],
-        ['☼', 'φ', '♣', '§', '‼', '◙', 'Ω'],
-        ['♠', '◙', 'φ', '♦', '±', '§', '♣'],
+        ['Ω', '§', '♦', '☼', '♥', '±'],  # A∪B
+        ['°', 'Ω', '♦', '◙', '♥', '‼'],  # A∪C
+        ['♣', 'Ω', '♠', '♦', 'φ', '♥'],  # A∪D
+        ['§', '°', '☼', '◙', '±', '‼'],  # B∪C
+        ['♣', '§', 'φ', '☼', '♠', '±'],  # B∪D
+        ['°', '♣', '◙', 'φ', '‼', '♠'],  # C∪D
     ]
     
     # All unique symbols (CP437 compatible)
