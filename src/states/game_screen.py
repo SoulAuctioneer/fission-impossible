@@ -307,7 +307,7 @@ class GameScreen(BaseState):
             self._phase_timer += dt
             self._update_modal_flash(dt, 1.0)  # Slow flash for celebration
             
-            if self._phase_timer >= 5.0:
+            if self._phase_timer >= 4.0:
                 self._start_emergency_warning()
         
         elif phase == GamePhase.EMERGENCY_WARNING:

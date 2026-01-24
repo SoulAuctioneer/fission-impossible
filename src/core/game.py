@@ -179,6 +179,9 @@ class Game:
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
                 self.input.update()
             
+            # Handle audio events (music end detection)
+            self.audio.handle_event(event)
+            
             # Pass event to current state
             self.state_machine.handle_event(event)
     
@@ -186,6 +189,9 @@ class Game:
         """Update game logic."""
         self.input.update()
         self.state_machine.update(dt)
+        
+        # Update audio (handles crossfade timing, music queue)
+        self.audio.update(dt)
         
         # Update settings screen if showing
         if self._show_settings and self._settings_screen:

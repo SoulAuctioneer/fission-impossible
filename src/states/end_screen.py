@@ -67,11 +67,14 @@ class EndScreen(BaseState):
         if not self.victory:
             self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_FAILURE
         
-        # Play victory or failure music
+        # Play victory or failure music stinger, then queue menu music
         if self.victory:
-            self.game.audio.play_music("victory_fanfare.mp3", loop=False)
+            self.game.audio.play_music("victory_fanfare.mp3", loop=False, crossfade=False)
         else:
-            self.game.audio.play_music("failure_doom.mp3", loop=False)
+            self.game.audio.play_music("failure_doom.mp3", loop=False, crossfade=False)
+        
+        # Queue calm menu music to play after stinger finishes
+        self.game.audio.queue_music("menu_theme.mp3")
     
     def update(self, dt: float):
         """Update end screen."""

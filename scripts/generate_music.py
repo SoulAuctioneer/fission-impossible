@@ -81,14 +81,14 @@ MUSIC_TRACKS = [
     MusicTrack(
         name="gameplay_calm",
         prompt="""
-        Atmospheric 1980s industrial ambient music. Slow tempo around 70 BPM.
-        Analog synthesizer pads with subtle pulsing, deep bass drone.
-        Sparse mechanical clicking and humming sounds integrated musically.
-        Cold War era tension, like monitoring a nuclear reactor at night.
-        Influenced by Tangerine Dream and John Carpenter's ambient work.
+        Atmospheric 1980s industrial ambient music with a slow tempo around 70 BPM.
+        Features analog synthesizer pads with subtle pulsing and a deep bass drone.
+        Incorporates sparse mechanical clicking and humming sounds integrated musically.
+        Evokes late night monitoring atmosphere in an industrial facility.
         Steady, hypnotic, slightly unsettling but not urgent.
-        Corporate muzak undertones, fluorescent light ambiance.
-        Retro-futuristic, analog warmth with digital coldness.
+        Includes corporate muzak undertones and fluorescent light ambiance.
+        Retro-futuristic vibe blending analog warmth with digital coldness.
+        Inspired by pioneering electronic music with lush synth textures and immersive soundscapes.
         """,
         duration_ms=60000,  # 60 seconds
         drama_level=DramaLevel.CALM,
@@ -113,17 +113,87 @@ MUSIC_TRACKS = [
     MusicTrack(
         name="gameplay_critical",
         prompt="""
-        Intense 1980s industrial synth music. Fast tempo around 130 BPM.
-        Aggressive analog synthesizer sequences, driving bass pulses.
-        Urgent, relentless, approaching catastrophe feeling.
-        Nuclear meltdown imminent, alarms in musical form.
-        Influenced by Tangerine Dream's action scores and John Carpenter.
-        Heavy industrial percussion, mechanical chaos.
-        Dissonant synth stabs, rising tension, no resolution.
-        Retro analog warmth with harsh digital edges.
-        Panic inducing but still musical, rhythmic urgency.
+        Intense 1980s industrial synth music with a fast tempo around 130 BPM.
+        Aggressive analog synthesizer sequences and driving bass pulses.
+        Creates an urgent, relentless atmosphere of high stakes action.
+        Musical alarms evoke an emergency scenario requiring immediate action.
+        Heavy industrial percussion and mechanical chaos throughout.
+        Dissonant synth stabs build rising tension without resolution.
+        Retro analog warmth blends with harsh digital edges.
+        Rhythmically urgent yet still musical, reminiscent of classic 1980s thriller
+        soundtracks with a focus on atmospheric and suspenseful electronic textures.
         """,
         duration_ms=60000,  # 60 seconds
+        drama_level=DramaLevel.CRITICAL,
+        category="gameplay",
+    ),
+
+    # Additional gameplay variation - training mode
+    MusicTrack(
+        name="gameplay_training",
+        prompt="""
+        Light 1980s tutorial music. Gentle tempo around 80 BPM.
+        Friendly analog synthesizer melody, educational video vibes.
+        Encouraging but slightly quirky, corporate training aesthetic.
+        Simple patterns, not threatening, learning atmosphere.
+        Warm synth pads, gentle arpeggios, no urgency.
+        Like a nuclear safety training video from the 80s.
+        Mildly unsettling undertone but mostly reassuring.
+        Influenced by educational films and workplace orientation videos.
+        """,
+        duration_ms=60000,  # 60 seconds
+        drama_level=DramaLevel.CALM,
+        category="gameplay",
+    ),
+    
+    # Longer gameplay loops for variety (90 seconds each)
+    MusicTrack(
+        name="gameplay_calm_alt",
+        prompt="""
+        Alternative calm 1980s ambient industrial. Slow tempo around 65 BPM.
+        Different melodic motifs from main calm track.
+        Deeper bass drones, more spacious arrangement.
+        Night shift at the reactor, quiet monitoring.
+        Influenced by Boards of Canada and early ambient electronica.
+        Analog warmth, tape hiss texture, gentle pulsing.
+        Peaceful but aware, something could happen any moment.
+        Retro synthesizers, FM bell tones, soft percussion.
+        """,
+        duration_ms=90000,  # 90 seconds
+        drama_level=DramaLevel.CALM,
+        category="gameplay",
+    ),
+    MusicTrack(
+        name="gameplay_tense_alt",
+        prompt="""
+        Alternative tense 1980s synthwave. Medium-fast tempo around 110 BPM.
+        Different rhythmic pattern from main tense track.
+        More melodic elements, synth lead lines.
+        Chase sequence feeling, racing against time.
+        Influenced by Kavinsky and modern synthwave.
+        Driving bassline, crisp drums, soaring pads.
+        Urgent but heroic, you can still do this.
+        Retro arcade energy mixed with film score drama.
+        """,
+        duration_ms=90000,  # 90 seconds
+        drama_level=DramaLevel.TENSE,
+        category="gameplay",
+    ),
+    
+    # Final countdown track for last 30 seconds
+    MusicTrack(
+        name="gameplay_final_countdown",
+        prompt="""
+        Extreme tension 1980s synth countdown. Very fast tempo around 140 BPM.
+        Relentless ticking synthesizer patterns, heartbeat bass.
+        Last moments before disaster, maximum intensity.
+        Clock running out, every second counts.
+        Influenced by action movie climaxes and thriller scores.
+        Aggressive arpeggios, stabbing chords, rising pitch.
+        No escape, pure adrenaline, do or die moment.
+        Industrial chaos with melodic desperation.
+        """,
+        duration_ms=45000,  # 45 seconds
         drama_level=DramaLevel.CRITICAL,
         category="gameplay",
     ),
@@ -260,6 +330,34 @@ MUSIC_TRACKS = [
         drama_level=DramaLevel.TENSE,
         category="transition",
     ),
+    MusicTrack(
+        name="tension_drop",
+        prompt="""
+        Short 1980s synth relief. Tension release.
+        Analog synthesizer sweep downward, pressure releasing.
+        Situation stabilizing, crisis averted for now.
+        Filter closing, energy dissipating.
+        Quick transition from tense to calmer state.
+        Warm resolution, minor to major shift.
+        """,
+        duration_ms=4000,  # 4 seconds
+        drama_level=DramaLevel.CALM,
+        category="transition",
+    ),
+    MusicTrack(
+        name="phase_transition",
+        prompt="""
+        Dramatic 1980s synth transition. Scene change.
+        Industrial machinery powering up, systems activating.
+        Like entering a new area in a video game.
+        Brief build then release, new section beginning.
+        Influenced by level transition sounds from 80s games.
+        Synth whoosh, digital sparkle, mechanical clunk.
+        """,
+        duration_ms=3000,  # 3 seconds
+        drama_level=DramaLevel.TENSE,
+        category="transition",
+    ),
 
     # ═══════════════════════════════════════════════════════════════════════════
     # Ambient Layers (For mixing with main tracks)
@@ -351,11 +449,16 @@ def generate_music_tracks_list(
         ext = output_format.split("_")[0]
         output_path = output_dir / f"{track.name}.{ext}"
 
-        # Skip if file exists and only_missing is True
+        # Skip if file exists with valid content and only_missing is True
+        # Files under 1KB are considered empty/corrupt and will be regenerated
         if only_missing and output_path.exists():
-            print(f"[{i:2}/{len(tracks)}] SKIP (exists): {track.name}")
-            skipped += 1
-            continue
+            file_size = output_path.stat().st_size
+            if file_size >= 1000:  # Valid file (at least 1KB)
+                print(f"[{i:2}/{len(tracks)}] SKIP (exists): {track.name}")
+                skipped += 1
+                continue
+            else:
+                print(f"[{i:2}/{len(tracks)}] REGENERATE (empty/corrupt {file_size}B): {track.name}")
 
         duration_sec = track.duration_ms / 1000
         print(f"[{i:2}/{len(tracks)}] Generating: {track.name}")

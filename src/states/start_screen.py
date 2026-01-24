@@ -108,12 +108,14 @@ class StartScreen(BaseState):
         content_x = box_x + 3
         briefing = [
             "",
+            "",
+            "",
             "    WELCOME, RECRUITS",
             "",
-            "    Today you will complete mandatory safety certification training.",
+            "    Today you will complete optional safety training.",
             "    This is a SIMULATED maintenance scenario.",
             "",
-            "    ────────────────────────────────────────────────────────────────────────────────────────────────",
+            # "    ────────────────────────────────────────────────────────────────────────────────────────────────",
             "",
             "    TECHNICIAN:    Operate the modules on this Maintenance Terminal.",
             "                   Describe what you see to the Hotline Team.",
@@ -121,7 +123,7 @@ class StartScreen(BaseState):
             "    HOTLINE TEAM:  Consult the Operations Manual to guide the Technician remotely.",
             "                   Do NOT look at this Terminal.",
             "",
-            "    ────────────────────────────────────────────────────────────────────────────────────────────────",
+            # "    ────────────────────────────────────────────────────────────────────────────────────────────────",
             "",
             "",
         ]

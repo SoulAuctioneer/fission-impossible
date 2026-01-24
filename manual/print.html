@@ -404,6 +404,29 @@
             font-weight: bold;
         }
         
+        /* Boris's Notes */
+        .boris-notes {
+            margin-top: 20px;
+            padding: 10px 14px;
+            background: #fffde7;
+            border: 1px solid #c9a227;
+            border-left: 4px solid #c9a227;
+            border-radius: 2px;
+            font-family: 'Courier Prime', monospace;
+            font-style: italic;
+            font-size: 9.5pt;
+            position: relative;
+        }
+        
+        .boris-notes::before {
+            content: "📝 Boris's Notes:";
+            font-style: normal;
+            font-weight: bold;
+            color: #8b6914;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
         /* Symbol table */
         .symbol-table td {
             text-align: center;
@@ -434,11 +457,10 @@
             <li>5. Rod Alignment</li>
             <li>6. Pressure Locks</li>
             <li>7. Security Terminal</li>
-            <li>A. Edgework Reference</li>
+            <li>8. Edgework Reference</li>
         </ul>
     </div>
 
-    <section id="intro" class="section">
         <h2>1. Introduction</h2>
         <p>This manual contains procedures for maintenance of Reactor Room 7-G systems. The <strong>TECHNICIAN</strong> operates the maintenance terminal while <strong>HOTLINE SUPPORT</strong> provides guidance using this manual.</p>
         
@@ -446,15 +468,11 @@
             <strong>IMPORTANT:</strong> The Technician CANNOT see this manual. Hotline Support must communicate all necessary information verbally.
         </div>
         
-        <h3>Edgework</h3>
-        <p>Many procedures reference "edgework" — information displayed on the Reactor Status panel:</p>
-        <ul>
-            <li><strong>Serial Number:</strong> 6-character alphanumeric code (e.g., AB3CD5)</li>
-            <li><strong>Batteries:</strong> Number of backup batteries (0-4)</li>
-            <li><strong>Parallel Port:</strong> YES or NO</li>
-            <li><strong>Indicators:</strong> Labeled lights (CAR, FRK, SIG, BOB, etc.) — lit or unlit</li>
-        </ul>
-    </section>
+        <p>Many procedures reference <strong>"edgework"</strong> — information displayed on the Reactor Status panel. See <strong>Page 8. Edgework Reference</strong> for complete edgework reference.</p>
+
+        <div class="boris-notes">
+            If technician is screaming, they probably found the break room fridge. Nothing in there since 1979. Do not open. Fridge is load-bearing.
+        </div>
 
     <section id="coolant" class="section section-break">
         <h2>2. Coolant Bypass</h2>
@@ -507,6 +525,10 @@
             <li>Otherwise, if no RED valves → Close the <strong>last</strong> valve</li>
             <li>Otherwise → Close valve <strong>4</strong></li>
         </ul>
+        
+        <div class="boris-notes">
+            Color codes changed three times since I started. I repainted valve 4 myself in 1981. Used house paint. Management gave me "Employee Initiative" award. Valve 4 has not worked since.
+        </div>
     </section>
 
     <section id="override" class="section section-break">
@@ -532,6 +554,10 @@
             <tr><td><span class="color-box color-yellow"></span> Yellow</td><td><strong>5</strong></td></tr>
             <tr><td>Any other color</td><td><strong>1</strong></td></tr>
         </table>
+        
+        <div class="boris-notes">
+            Button previously said "LAUNCH." Management had it relabeled after The Misunderstanding of '77. Button still does the same thing. Nobody knows what that is.
+        </div>
     </section>
 
     <section id="vents" class="section section-break">
@@ -602,6 +628,10 @@
                 <td><span class="symbol">♠</span></td>
             </tr>
         </table>
+        
+        <div class="boris-notes">
+            Symbols were chosen by previous safety officer. He was "into astrology." These are not astrology symbols. HR asked no follow-up questions. He works at corporate now.
+        </div>
     </section>
 
     <section id="rods" class="section section-break">
@@ -659,6 +689,10 @@
                 <td><span class="color-box color-red"></span>Red</td>
             </tr>
         </table>
+        
+        <div class="boris-notes">
+            Whoever designed this was colorblind. I know because I am also colorblind. Reported this in 1974. Told to "work around it." Have been guessing ever since. 60% success rate. This is considered acceptable.
+        </div>
     </section>
 
     <section id="pressure" class="section section-break">
@@ -1083,6 +1117,10 @@
                 </div>
             </div>
         </div>
+        
+        <div class="boris-notes">
+            Original maze walls were visible. Gary suggested making them invisible "for security reasons." Now nobody can navigate them. Gary was promoted. Then Gary disappeared. Unrelated, probably.
+        </div>
     </section>
 
     <section id="terminal" class="section section-break">
@@ -1118,10 +1156,14 @@
                 <td>WATTS</td><td></td><td></td><td></td><td></td><td></td>
             </tr>
         </table>
+        
+        <div class="boris-notes">
+            IT changed passwords in '83 because everyone used NUCLEAR. New policy: "must contain number." Everyone now uses NUCLEAR1. IT considers this a success. I use BORISISGREAT. Do not tell IT.
+        </div>
     </section>
 
     <section id="appendix" class="section section-break">
-        <h2>Appendix A: Edgework Reference</h2>
+        <h2>8. Edgework Reference</h2>
         
         <h3>Serial Number</h3>
         <p>A 6-character code displayed on the Reactor Status panel (e.g., AB3CD5).</p>
@@ -1140,6 +1182,10 @@
         
         <h3>Parallel Port</h3>
         <p>Whether a parallel port connector is present (YES/NO).</p>
+        
+        <div class="boris-notes">
+            Serial numbers are assigned by Stasia in HR. She uses a system. Nobody understands the system. Once asked her. She said "the numbers know." I did not ask again. Stasia has been checking on something since 1974. Still checking.
+        </div>
     </section>
 
     <footer>
