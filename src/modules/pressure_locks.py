@@ -21,7 +21,7 @@ class PressureLocksModule(BaseModule):
     Navigate a 6x6 grid to reach the target without hitting walls.
     """
     
-    # Predefined maze layouts (9 mazes)
+    # Predefined maze layouts (8 mazes)
     # Each maze is defined by walls between cells
     # Format: set of ((x1,y1), (x2,y2)) tuples indicating walls
     # Also includes two reference marker positions to identify the maze
@@ -123,18 +123,6 @@ class PressureLocksModule(BaseModule):
                 ((0,3), (0,4)), ((2,3), (2,4)), ((5,3), (5,4)),
                 ((1,4), (1,5)), ((3,4), (4,4)), ((0,5), (1,5)),
                 ((2,5), (3,5)), ((4,5), (5,5)),
-            }
-        },
-        # Maze 8
-        {
-            'markers': [(0, 4), (4, 4)],
-            'walls': {
-                ((1,0), (1,1)), ((2,0), (3,0)), ((5,0), (5,1)),
-                ((0,1), (0,2)), ((2,1), (2,2)), ((3,1), (4,1)),
-                ((1,2), (2,2)), ((4,2), (5,2)), ((0,3), (1,3)),
-                ((2,3), (2,4)), ((3,3), (3,4)), ((5,3), (5,4)),
-                ((0,4), (0,5)), ((1,4), (2,4)), ((4,4), (4,5)),
-                ((1,5), (2,5)), ((3,5), (4,5)),
             }
         },
     ]

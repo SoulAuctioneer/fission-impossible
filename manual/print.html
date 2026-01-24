@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nüclear Solutions — Operations Manual (Print Version)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Oswald:wght@500;700&display=swap');
+        
+        @page {
+            size: letter;
+            margin: 0.6in;
+        }
+        
+        :root {
+            --nuclear-yellow: #f9a825;
+            --nuclear-orange: #ff6f00;
+            --danger-red: #c62828;
+            --safe-green: #2e7d32;
+            --cool-blue: #1565c0;
+            --dark-gray: #263238;
+            --light-gray: #eceff1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: white;
+            color: var(--dark-gray);
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            font-size: 10.5pt;
+            line-height: 1.4;
+            max-width: 7.5in;
+            margin: 0 auto;
+            padding: 0.25in;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Oswald', 'Arial Black', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        h1 {
+            font-size: 28pt;
+            text-align: center;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+        }
+        
+        h2 {
+            font-size: 14pt;
+            margin-top: 18px;
+            margin-bottom: 10px;
+            color: white;
+            background: linear-gradient(135deg, var(--nuclear-orange), var(--nuclear-yellow));
+            padding: 6px 12px;
+            border-radius: 3px;
+            page-break-after: avoid;
+        }
+        
+        h3 {
+            font-size: 11pt;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            color: var(--cool-blue);
+            border-bottom: 2px solid var(--cool-blue);
+            padding-bottom: 3px;
+            page-break-after: avoid;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--nuclear-yellow) 0%, var(--nuclear-orange) 100%);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+        }
+        
+        .header .logo {
+            font-size: 22pt;
+            font-weight: bold;
+            color: var(--danger-red);
+            text-shadow: 1px 1px 0 white;
+        }
+        
+        .header .subtitle {
+            font-size: 9pt;
+            margin-top: 5px;
+            color: var(--dark-gray);
+        }
+        
+        .header .classification {
+            display: inline-block;
+            background: var(--danger-red);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 8pt;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        
+        .toc {
+            background: var(--light-gray);
+            border-left: 4px solid var(--nuclear-orange);
+            padding: 15px;
+            margin-bottom: 15px;
+            page-break-after: always;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            background: none;
+            color: var(--dark-gray);
+            padding: 0;
+            margin-bottom: 10px;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            columns: 2;
+            column-gap: 20px;
+        }
+        
+        .toc li {
+            margin: 4px 0;
+            font-size: 10pt;
+        }
+        
+        .toc a {
+            color: var(--dark-gray);
+            text-decoration: none;
+        }
+        
+        .section {
+            margin-bottom: 15px;
+        }
+        
+        .section-break {
+            page-break-before: always;
+        }
+        
+        p {
+            margin-bottom: 6px;
+        }
+        
+        ul, ol {
+            margin-left: 18px;
+            margin-bottom: 8px;
+        }
+        
+        li {
+            margin-bottom: 3px;
+        }
+        
+        .warning {
+            background: linear-gradient(90deg, #fff3e0 0%, white 100%);
+            border-left: 5px solid var(--nuclear-orange);
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .warning::before {
+            content: "⚠ ";
+            color: var(--nuclear-orange);
+            font-weight: bold;
+        }
+        
+        .danger {
+            background: linear-gradient(90deg, #ffebee 0%, white 100%);
+            border-left: 5px solid var(--danger-red);
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+            font-weight: bold;
+        }
+        
+        .danger::before {
+            content: "☢ ";
+            color: var(--danger-red);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 9.5pt;
+        }
+        
+        th, td {
+            border: 1px solid #90a4ae;
+            padding: 5px 8px;
+            text-align: left;
+        }
+        
+        th {
+            background: var(--cool-blue);
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+        
+        code {
+            background: #e3f2fd;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-family: 'Courier Prime', monospace;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            vertical-align: middle;
+            margin-right: 3px;
+            border: 1px solid #333;
+            border-radius: 2px;
+        }
+        
+        .color-red { background: #e53935; }
+        .color-blue { background: #1e88e5; }
+        .color-yellow { background: #fdd835; }
+        .color-white { background: #ffffff; }
+        .color-black { background: #333333; }
+        .color-green { background: #43a047; }
+        
+        .symbol {
+            font-size: 14pt;
+            display: inline-block;
+            width: 28px;
+            text-align: center;
+        }
+        
+        /* Maze Styles - Compact for printing (4 per row) */
+        .maze-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px 4px;
+        }
+        
+        .maze-container {
+            display: inline-block;
+            vertical-align: top;
+            page-break-inside: avoid;
+            background: #fafafa;
+            padding: 4px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            width: 23.5%;
+        }
+        
+        .maze-grid {
+            display: grid;
+            grid-template-columns: 10px repeat(6, 17px);
+            grid-template-rows: 10px repeat(6, 17px);
+            gap: 0;
+            font-family: monospace;
+            font-size: 8pt;
+        }
+        
+        .maze-cell {
+            width: 17px;
+            height: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #bbb;
+            background: white;
+        }
+        
+        .maze-header {
+            width: 17px;
+            height: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 7pt;
+            color: var(--cool-blue);
+        }
+        
+        .maze-row-label {
+            width: 10px;
+            height: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 7pt;
+            color: var(--cool-blue);
+        }
+        
+        .maze-corner {
+            width: 10px;
+            height: 10px;
+        }
+        
+        .maze-cell.marker {
+            font-weight: bold;
+            font-size: 10pt;
+            color: #0097a7;
+            background: #e0f7fa;
+        }
+        
+        .maze-cell.wall-right {
+            border-right: 2px solid var(--danger-red);
+        }
+        
+        .maze-cell.wall-bottom {
+            border-bottom: 2px solid var(--danger-red);
+        }
+        
+        .maze-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 9pt;
+            color: var(--dark-gray);
+        }
+        
+        .maze-markers {
+            text-align: center;
+            font-size: 7pt;
+            margin-top: 2px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 12px;
+            border-top: 3px solid var(--nuclear-orange);
+            font-size: 8pt;
+            color: #666;
+        }
+        
+        footer strong {
+            color: var(--dark-gray);
+        }
+        
+        /* Print optimizations */
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .toc {
+                page-break-after: always;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .section-break {
+                page-break-before: always;
+            }
+            
+            h2 {
+                page-break-after: avoid;
+            }
+            
+            h3 {
+                page-break-after: avoid;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+            
+            .maze-container {
+                page-break-inside: avoid;
+            }
+            
+            .warning, .danger {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Words table - compact */
+        .words-table td {
+            padding: 3px 6px;
+            font-size: 10pt;
+            font-weight: bold;
+        }
+        
+        /* Symbol table */
+        .symbol-table td {
+            text-align: center;
+            padding: 3px;
+        }
+        
+        /* Color table */
+        .color-table td {
+            padding: 4px 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">☢ NÜCLEAR SOLUTIONS ☢</div>
+        <h1>Operations Manual</h1>
+        <div class="subtitle">MAINTENANCE ROOM 7-G PROCEDURES</div>
+        <div class="classification">CLASSIFICATION: INTERNAL USE ONLY</div>
+    </div>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li>1. Introduction</li>
+            <li>2. Coolant Bypass Valves</li>
+            <li>3. Emergency Override</li>
+            <li>4. Vent Codes</li>
+            <li>5. Rod Alignment</li>
+            <li>6. Pressure Locks (Mazes)</li>
+            <li>7. Security Terminal</li>
+            <li>A. Edgework Reference</li>
+        </ul>
+    </div>
+
+    <section id="intro" class="section">
+        <h2>1. Introduction</h2>
+        <p>This manual contains procedures for maintenance of Reactor Room 7-G systems. The <strong>TECHNICIAN</strong> operates the maintenance terminal while <strong>HOTLINE SUPPORT</strong> provides guidance using this manual.</p>
+        
+        <div class="warning">
+            <strong>IMPORTANT:</strong> The Technician CANNOT see this manual. Hotline Support must communicate all necessary information verbally.
+        </div>
+        
+        <h3>Edgework</h3>
+        <p>Many procedures reference "edgework" — information displayed on the Reactor Status panel:</p>
+        <ul>
+            <li><strong>Serial Number:</strong> 6-character alphanumeric code (e.g., AB3CD5)</li>
+            <li><strong>Batteries:</strong> Number of backup batteries (0-4)</li>
+            <li><strong>Parallel Port:</strong> YES or NO</li>
+            <li><strong>Indicators:</strong> Labeled lights (CAR, FRK, SIG, BOB, etc.) — lit or unlit</li>
+        </ul>
+    </section>
+
+    <section id="coolant" class="section">
+        <h2>2. Coolant Bypass Valves</h2>
+        <p>The module displays 3-6 colored pipes. Close <strong>ONE</strong> valve to restore nominal flow.</p>
+        
+        <div class="danger">
+            Closing the wrong valve causes catastrophic backpressure!
+        </div>
+        
+        <h3>Valve Colors</h3>
+        <table class="color-table">
+            <tr>
+                <td><span class="color-box color-red"></span> <strong>R</strong> = Red</td>
+                <td><span class="color-box color-blue"></span> <strong>B</strong> = Blue</td>
+                <td><span class="color-box color-yellow"></span> <strong>Y</strong> = Yellow</td>
+                <td><span class="color-box color-white"></span> <strong>W</strong> = White</td>
+                <td><span class="color-box color-black"></span> <strong>K</strong> = Black</td>
+            </tr>
+        </table>
+        
+        <h3>3 Valves</h3>
+        <ul>
+            <li>If no RED valves → Close valve <strong>2</strong></li>
+            <li>Otherwise, if valve 3 is WHITE → Close valve <strong>3</strong></li>
+            <li>Otherwise, if more than one BLUE valve → Close the <strong>last BLUE</strong> valve</li>
+            <li>Otherwise → Close valve <strong>3</strong></li>
+        </ul>
+        
+        <h3>4 Valves</h3>
+        <ul>
+            <li>If more than one RED valve AND serial ends <strong>ODD</strong> → Close the <strong>last RED</strong> valve</li>
+            <li>Otherwise, if valve 4 is YELLOW and no RED valves → Close valve <strong>1</strong></li>
+            <li>Otherwise, if exactly one BLUE valve → Close valve <strong>1</strong></li>
+            <li>Otherwise, if more than one YELLOW valve → Close valve <strong>4</strong></li>
+            <li>Otherwise → Close valve <strong>2</strong></li>
+        </ul>
+        
+        <h3>5 Valves</h3>
+        <ul>
+            <li>If valve 5 is BLACK AND serial ends <strong>ODD</strong> → Close valve <strong>4</strong></li>
+            <li>Otherwise, if exactly one RED valve AND more than one YELLOW valve → Close valve <strong>1</strong></li>
+            <li>Otherwise, if no BLACK valves → Close valve <strong>2</strong></li>
+            <li>Otherwise → Close valve <strong>1</strong></li>
+        </ul>
+        
+        <h3>6 Valves</h3>
+        <ul>
+            <li>If no YELLOW valves AND serial ends <strong>ODD</strong> → Close valve <strong>3</strong></li>
+            <li>Otherwise, if exactly one YELLOW valve AND more than one WHITE valve → Close valve <strong>4</strong></li>
+            <li>Otherwise, if no RED valves → Close the <strong>last</strong> valve</li>
+            <li>Otherwise → Close valve <strong>4</strong></li>
+        </ul>
+    </section>
+
+    <section id="override" class="section section-break">
+        <h2>3. Emergency Override</h2>
+        <p>A large button with a colored label. Either <strong>PRESS</strong> (tap) or <strong>HOLD</strong> the button.</p>
+        
+        <h3>Decision Tree</h3>
+        <ol>
+            <li>If the button is <span class="color-box color-blue"></span><strong>BLUE</strong> and says "ABORT" → <strong>HOLD</strong></li>
+            <li>If there are more than 1 battery and says "DETONATE" → <strong>PRESS</strong></li>
+            <li>If the button is <span class="color-box color-white"></span><strong>WHITE</strong> and there is a <strong>lit CAR</strong> indicator → <strong>HOLD</strong></li>
+            <li>If there are more than 2 batteries and there is a <strong>lit FRK</strong> indicator → <strong>PRESS</strong></li>
+            <li>If the button is <span class="color-box color-yellow"></span><strong>YELLOW</strong> → <strong>HOLD</strong></li>
+            <li>If the button is <span class="color-box color-red"></span><strong>RED</strong> and says "HOLD" → <strong>PRESS</strong></li>
+            <li>Otherwise → <strong>HOLD</strong></li>
+        </ol>
+        
+        <h3>If Holding</h3>
+        <p>When you hold the button, a colored strip will appear. Release when the countdown timer shows the correct digit:</p>
+        <table>
+            <tr><th>Strip Color</th><th>Release When Timer Contains</th></tr>
+            <tr><td><span class="color-box color-blue"></span> Blue</td><td><strong>4</strong></td></tr>
+            <tr><td><span class="color-box color-yellow"></span> Yellow</td><td><strong>5</strong></td></tr>
+            <tr><td>Any other color</td><td><strong>1</strong></td></tr>
+        </table>
+    </section>
+
+    <section id="vents" class="section section-break">
+        <h2>4. Vent Codes</h2>
+        <p>Four symbols must be pressed in the correct order.</p>
+        
+        <h3>Symbol Columns</h3>
+        <p>Find the column that contains <strong>ALL FOUR</strong> symbols on the keypad. Press them in the order they appear in that column (top to bottom).</p>
+        
+        <table class="symbol-table">
+            <tr>
+                <th>Col 1</th>
+                <th>Col 2</th>
+                <th>Col 3</th>
+                <th>Col 4</th>
+                <th>Col 5</th>
+                <th>Col 6</th>
+            </tr>
+            <tr>
+                <td><span class="symbol">Ω</span></td>
+                <td><span class="symbol">◙</span></td>
+                <td><span class="symbol">♣</span></td>
+                <td><span class="symbol">♠</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">♠</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">Ω</span></td>
+                <td><span class="symbol">§</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">φ</span></td>
+                <td><span class="symbol">◙</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">°</span></td>
+                <td><span class="symbol">°</span></td>
+                <td><span class="symbol">φ</span></td>
+                <td><span class="symbol">♣</span></td>
+                <td><span class="symbol">φ</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">§</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">§</span></td>
+                <td><span class="symbol">♦</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">‼</span></td>
+                <td><span class="symbol">±</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">±</span></td>
+                <td><span class="symbol">±</span></td>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">♣</span></td>
+                <td><span class="symbol">◙</span></td>
+                <td><span class="symbol">§</span></td>
+            </tr>
+            <tr>
+                <td><span class="symbol">°</span></td>
+                <td><span class="symbol">φ</span></td>
+                <td><span class="symbol">♦</span></td>
+                <td><span class="symbol">§</span></td>
+                <td><span class="symbol">Ω</span></td>
+                <td><span class="symbol">♣</span></td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="rods" class="section section-break">
+        <h2>5. Rod Alignment</h2>
+        <p>Watch the flashing color sequence, then repeat it using the correct color mapping.</p>
+        
+        <div class="warning">
+            <strong>CRITICAL:</strong> The color you PRESS is different from the color that FLASHED!
+        </div>
+        
+        <h3>If Serial Number Contains a Vowel (A, E, I, O, U)</h3>
+        <table>
+            <tr>
+                <th>Errors</th>
+                <th>Red Flash</th>
+                <th>Blue Flash</th>
+                <th>Green Flash</th>
+                <th>Yellow Flash</th>
+            </tr>
+            <tr>
+                <td><strong>0</strong></td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+            </tr>
+            <tr>
+                <td><strong>1</strong></td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+            <tr>
+                <td><strong>2+</strong></td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+            </tr>
+        </table>
+        
+        <h3>If Serial Number Does NOT Contain a Vowel</h3>
+        <table>
+            <tr>
+                <th>Errors</th>
+                <th>Red Flash</th>
+                <th>Blue Flash</th>
+                <th>Green Flash</th>
+                <th>Yellow Flash</th>
+            </tr>
+            <tr>
+                <td><strong>0</strong></td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+            <tr>
+                <td><strong>1</strong></td>
+                <td><span class="color-box color-red"></span>Red</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+            </tr>
+            <tr>
+                <td><strong>2+</strong></td>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
+                <td><span class="color-box color-red"></span>Red</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="pressure" class="section section-break">
+        <h2>6. Pressure Locks (Mazes)</h2>
+        <p>Navigate from the player marker (■) to the target (▲) without hitting invisible walls.</p>
+        
+        <div class="danger">
+            Hitting a wall causes a strike!
+        </div>
+        
+        <h3>Reading Coordinates</h3>
+        <p>Coordinates are <strong>(column, row)</strong> — e.g., (2,3) means column 2, row 3.</p>
+        
+        <h3>Identifying the Maze</h3>
+        <p>Two cyan reference markers (◙) appear on the grid. Find the maze below with markers in matching positions.</p>
+        
+        <div class="warning">
+            <strong>INVISIBLE WALLS:</strong> The Technician cannot see walls! Guide them step by step.
+        </div>
+
+        <h3>Maze Layouts</h3>
+        <p><span style="color: var(--danger-red);">Red lines</span> indicate walls. <span style="color: #0097a7;">◙</span> marks the reference circles.</p>
+
+        <div class="maze-wrapper">
+            <div class="maze-container">
+                <div class="maze-title">Maze 1</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-right wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker wall-bottom">◙</div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (0,1) and (5,2)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 2</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (4,1) and (1,3)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 3</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell marker wall-bottom">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (3,3) and (5,3)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 4</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (0,0) and (0,3)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 5</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell marker wall-right">◙</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (4,2) and (3,5)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 6</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (4,0) and (1,5)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 7</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell marker wall-bottom">◙</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (2,0) and (3,2)</div>
+            </div>
+
+            <div class="maze-container">
+                <div class="maze-title">Maze 8</div>
+                <div class="maze-grid">
+                    <div class="maze-corner"></div>
+                    <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                    <div class="maze-row-label">0</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">1</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">2</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">3</div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-row-label">4</div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-bottom"></div>
+                    <div class="maze-cell marker">◙</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-row-label">5</div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                    <div class="maze-cell wall-right"></div>
+                    <div class="maze-cell"></div>
+                </div>
+                <div class="maze-markers">◙ at (1,0) and (2,4)</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="terminal" class="section section-break">
+        <h2>7. Security Terminal</h2>
+        <p>Cycle through letters at each position to form a valid word.</p>
+        
+        <h3>Procedure</h3>
+        <ol>
+            <li>Have the Technician read the available letters at each position</li>
+            <li>Find the word from the list below that can be formed using those letters</li>
+            <li>Tell the Technician to cycle to each correct letter</li>
+            <li>Press SUBMIT</li>
+        </ol>
+        
+        <h3>Valid Words</h3>
+        <table class="words-table">
+            <tr>
+                <td>ALARM</td><td>ATOMS</td><td>BADGE</td><td>BURNS</td><td>CHAIN</td><td>CLEAN</td>
+            </tr>
+            <tr>
+                <td>CLOCK</td><td>CODES</td><td>CORES</td><td>DECAY</td><td>DRAIN</td><td>FUSED</td>
+            </tr>
+            <tr>
+                <td>GAUGE</td><td>GEARS</td><td>GUARD</td><td>HAZED</td><td>LEAKS</td><td>METER</td>
+            </tr>
+            <tr>
+                <td>NUKED</td><td>PLANT</td><td>POWER</td><td>SHIFT</td><td>SIREN</td><td>SMOKE</td>
+            </tr>
+            <tr>
+                <td>SPLIT</td><td>STEAM</td><td>TIMER</td><td>VALVE</td><td>VAULT</td><td>WASTE</td>
+            </tr>
+            <tr>
+                <td>WATTS</td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="appendix" class="section">
+        <h2>Appendix A: Edgework Reference</h2>
+        
+        <h3>Serial Number</h3>
+        <p>A 6-character code displayed on the Reactor Status panel (e.g., AB3CD5).</p>
+        <ul>
+            <li><strong>Contains Vowel:</strong> Check if A, E, I, O, or U appears anywhere</li>
+            <li><strong>Last Digit Odd:</strong> Check if the final digit is 1, 3, 5, 7, or 9</li>
+            <li><strong>Last Digit Even:</strong> Check if the final digit is 0, 2, 4, 6, or 8</li>
+        </ul>
+        
+        <h3>Indicators</h3>
+        <p>Labeled lights that may be LIT (on) or UNLIT (off).</p>
+        <p>Common labels: <strong>CAR, FRK, SIG, BOB, CLR, IND, MSA, NSA</strong></p>
+        
+        <h3>Batteries</h3>
+        <p>Count of backup batteries (0-4).</p>
+        
+        <h3>Parallel Port</h3>
+        <p>Whether a parallel port connector is present (YES/NO).</p>
+    </section>
+
+    <footer>
+        <p><strong>☢ NÜCLEAR SOLUTIONS</strong> — "We-anium to Please"</p>
+        <p>OPERATIONS MANUAL — CLASSIFICATION: INTERNAL USE ONLY</p>
+        <p>© 1986 Nüclear Solutions Industries. All rights reserved.</p>
+        <p><em>Note: Nüclear Solutions is not responsible for any injury, death, or nuclear incidents resulting from improper use of this manual.</em></p>
+    </footer>
+</body>
+</html>
