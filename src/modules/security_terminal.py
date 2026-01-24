@@ -45,6 +45,9 @@ class SecurityTerminalModule(BaseModule):
         self.target_word = random.choice(self.WORDS)
         
         # Generate letter options for each position
+        # First position has fewer options to make the module easier
+        # Position 0: 4 letters, Position 1: 5 letters, Positions 2-4: 6 letters
+        options_per_position = [4, 5, 6, 6, 6]
         self.letter_options = []
         
         for i in range(5):
@@ -53,9 +56,10 @@ class SecurityTerminalModule(BaseModule):
             # Start with the correct letter
             options = {correct_letter}
             
-            # Add 4-5 random wrong letters
+            # Add random wrong letters up to the target count for this position
             alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            while len(options) < 6:
+            target_count = options_per_position[i]
+            while len(options) < target_count:
                 random_letter = random.choice(alphabet)
                 # Only add if it wouldn't complete a different valid word
                 options.add(random_letter)

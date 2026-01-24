@@ -135,7 +135,14 @@ class BaseModule(ABC):
         buffer.put_string(self.x + 2, status_y, "STATUS:", Color.DARK_GRAY)
         
         if self.solved:
-            buffer.put_string(self.x + 10, status_y, "[■]", Color.LIGHT_GREEN)
+            # Nominal - green glowing LED
+            buffer.put_string(self.x + 10, status_y, "[", Color.LIGHT_GREEN)
+            buffer.put_char(self.x + 11, status_y, "■", Color.LIGHT_GREEN, glow=1)
+            buffer.put_string(self.x + 12, status_y, "]", Color.LIGHT_GREEN)
             buffer.put_string(self.x + 14, status_y, "NOMINAL", Color.LIGHT_GREEN)
         else:
-            buffer.put_string(self.x + 10, status_y, "[·]", Color.DARK_GRAY)
+            # Anomalous - orange glowing LED
+            buffer.put_string(self.x + 10, status_y, "[", Color.YELLOW)
+            buffer.put_char(self.x + 11, status_y, "■", Color.YELLOW, glow=1)
+            buffer.put_string(self.x + 12, status_y, "]", Color.YELLOW)
+            buffer.put_string(self.x + 14, status_y, "ANOMALOUS", Color.YELLOW)

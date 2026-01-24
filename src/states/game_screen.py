@@ -217,8 +217,7 @@ class GameScreen(BaseState):
         self.game.state_machine.switch(EndScreen(
             self.game,
             victory=victory,
-            time_remaining=self.game_state.time_remaining,
-            strikes=self.game_state.strikes
+            game_state=self.game_state
         ))
     
     def update(self, dt: float):

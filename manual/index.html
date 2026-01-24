@@ -343,10 +343,10 @@
         <h3>Symbol Columns</h3>
         <p>Find the column that contains <strong>ALL FOUR</strong> symbols on the keypad. Press them in the order they appear in that column (top to bottom).</p>
         
-        <!-- Symbol mapping for CP437 font compatibility:
-             Ω = radiation, ♦ = star, ◊ = diamond, § = lightning
-             ¤ = currency, ± = plus-minus, ° = degree/temp, ◙ = target
-             ‼ = warning, φ = empty set, © = copyright, ♠ = gear -->
+        <!-- Symbol mapping (all CP437 compatible):
+             Ω = omega/radiation, ♦ = diamond, ♥ = heart, § = section/lightning
+             ☼ = sun, ± = plus-minus, ° = degree/temp, ◙ = target
+             ‼ = warning, φ = phi/empty, ♣ = club, ♠ = spade -->
         <table>
             <tr>
                 <th>Column 1</th>
@@ -359,9 +359,9 @@
             <tr>
                 <td><span class="symbol">Ω</span></td>
                 <td><span class="symbol">◙</span></td>
-                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">♣</span></td>
                 <td><span class="symbol">♠</span></td>
-                <td><span class="symbol">¤</span></td>
+                <td><span class="symbol">☼</span></td>
                 <td><span class="symbol">♠</span></td>
             </tr>
             <tr>
@@ -373,34 +373,34 @@
                 <td><span class="symbol">◙</span></td>
             </tr>
             <tr>
-                <td><span class="symbol">◊</span></td>
+                <td><span class="symbol">♥</span></td>
                 <td><span class="symbol">°</span></td>
                 <td><span class="symbol">°</span></td>
                 <td><span class="symbol">φ</span></td>
-                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">♣</span></td>
                 <td><span class="symbol">φ</span></td>
             </tr>
             <tr>
                 <td><span class="symbol">§</span></td>
                 <td><span class="symbol">‼</span></td>
                 <td><span class="symbol">‼</span></td>
-                <td><span class="symbol">¤</span></td>
+                <td><span class="symbol">☼</span></td>
                 <td><span class="symbol">§</span></td>
                 <td><span class="symbol">♦</span></td>
             </tr>
             <tr>
-                <td><span class="symbol">¤</span></td>
+                <td><span class="symbol">☼</span></td>
                 <td><span class="symbol">♦</span></td>
-                <td><span class="symbol">¤</span></td>
-                <td><span class="symbol">◊</span></td>
+                <td><span class="symbol">☼</span></td>
+                <td><span class="symbol">♥</span></td>
                 <td><span class="symbol">‼</span></td>
                 <td><span class="symbol">±</span></td>
             </tr>
             <tr>
                 <td><span class="symbol">±</span></td>
                 <td><span class="symbol">±</span></td>
-                <td><span class="symbol">◊</span></td>
-                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">♥</span></td>
+                <td><span class="symbol">♣</span></td>
                 <td><span class="symbol">◙</span></td>
                 <td><span class="symbol">§</span></td>
             </tr>
@@ -410,7 +410,7 @@
                 <td><span class="symbol">♦</span></td>
                 <td><span class="symbol">§</span></td>
                 <td><span class="symbol">Ω</span></td>
-                <td><span class="symbol">©</span></td>
+                <td><span class="symbol">♣</span></td>
             </tr>
         </table>
     </section>
@@ -490,46 +490,553 @@
 
     <section id="pressure" class="section">
         <h2>6. Pressure Locks</h2>
-        <p>Navigate from the marker (●) to the target (▲) without hitting invisible walls.</p>
+        <p>Navigate from the player marker (■) to the target (▲) without hitting invisible walls.</p>
         
         <div class="danger">
             ⚠ Hitting a wall causes a strike!
         </div>
         
+        <h3>Reading Coordinates</h3>
+        <p>The grid displays column numbers (0-5) across the top and row numbers (0-5) down the left side.</p>
+        <p>Coordinates are given as <strong>(column, row)</strong> — for example, (2,3) means column 2, row 3.</p>
+        
         <h3>Identifying the Maze</h3>
-        <p>Two reference circles (◎) appear on the grid. Find the maze below that has circles in the same positions.</p>
-        
-        <h3>Maze 1</h3>
-        <p>Markers: (0,1) and (5,2)</p>
-        <p><em>Navigate carefully around the walls shown in the full manual.</em></p>
-        
-        <h3>Maze 2</h3>
-        <p>Markers: (4,1) and (1,3)</p>
-        
-        <h3>Maze 3</h3>
-        <p>Markers: (3,3) and (5,3)</p>
-        
-        <h3>Maze 4</h3>
-        <p>Markers: (0,0) and (0,3)</p>
-        
-        <h3>Maze 5</h3>
-        <p>Markers: (4,2) and (3,5)</p>
-        
-        <h3>Maze 6</h3>
-        <p>Markers: (4,0) and (1,5)</p>
-        
-        <h3>Maze 7</h3>
-        <p>Markers: (2,0) and (3,2)</p>
-        
-        <h3>Maze 8</h3>
-        <p>Markers: (1,0) and (2,4)</p>
-        
-        <h3>Maze 9</h3>
-        <p>Markers: (0,4) and (4,4)</p>
+        <p>Two reference markers (◙) appear on the grid. Find the maze below with markers in matching positions, then guide the Technician around the walls.</p>
         
         <div class="warning">
-            Detailed maze layouts available in the extended manual appendix.
+            ⚠ Walls are INVISIBLE to the Technician! You must guide them step by step.
         </div>
+
+        <style>
+            .maze-container {
+                display: inline-block;
+                margin: 10px;
+                vertical-align: top;
+            }
+            .maze-grid {
+                display: grid;
+                grid-template-columns: 20px repeat(6, 28px);
+                grid-template-rows: 20px repeat(6, 28px);
+                gap: 0;
+                font-family: monospace;
+                font-size: 12px;
+            }
+            .maze-cell {
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid var(--dim-color);
+                color: var(--text-color);
+            }
+            .maze-header {
+                width: 28px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--warning-color);
+                font-weight: bold;
+            }
+            .maze-row-label {
+                width: 20px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--warning-color);
+                font-weight: bold;
+            }
+            .maze-corner {
+                width: 20px;
+                height: 20px;
+            }
+            .maze-cell.marker {
+                color: var(--highlight-color);
+                font-weight: bold;
+            }
+            .maze-cell.wall-right {
+                border-right: 3px solid var(--error-color);
+            }
+            .maze-cell.wall-bottom {
+                border-bottom: 3px solid var(--error-color);
+            }
+            .maze-title {
+                text-align: center;
+                color: var(--highlight-color);
+                margin-bottom: 5px;
+            }
+            .maze-markers {
+                text-align: center;
+                font-size: 11px;
+                color: var(--dim-color);
+                margin-top: 3px;
+            }
+        </style>
+
+        <h3>Maze Layouts</h3>
+        <p>Red lines indicate walls. ◙ marks the reference circles used to identify the maze.</p>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 1</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-right wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker wall-bottom">◙</div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (0,1) and (5,2)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 2</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (4,1) and (1,3)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 3</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell marker wall-bottom">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (3,3) and (5,3)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 4</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (0,0) and (0,3)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 5</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell marker wall-right">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (4,2) and (3,5)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 6</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (4,0) and (1,5)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 7</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell marker wall-bottom">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (2,0) and (3,2)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 8</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell marker">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (1,0) and (2,4)</div>
+        </div>
+
+        <div class="maze-container">
+            <div class="maze-title">Maze 9</div>
+            <div class="maze-grid">
+                <div class="maze-corner"></div>
+                <div class="maze-header">0</div><div class="maze-header">1</div><div class="maze-header">2</div><div class="maze-header">3</div><div class="maze-header">4</div><div class="maze-header">5</div>
+                <div class="maze-row-label">0</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">1</div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">2</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">3</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-bottom"></div>
+                <div class="maze-row-label">4</div>
+                <div class="maze-cell marker wall-bottom">◙</div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell marker wall-bottom">◙</div>
+                <div class="maze-cell"></div>
+                <div class="maze-row-label">5</div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell wall-right"></div>
+                <div class="maze-cell"></div>
+                <div class="maze-cell"></div>
+            </div>
+            <div class="maze-markers">◙ at (0,4) and (4,4)</div>
+        </div>
+
     </section>
 
     <section id="terminal" class="section">

@@ -69,15 +69,20 @@ class RodAlignmentModule(BaseModule):
         
         # Visual state
         self.active_color: Optional[str] = None  # Currently lit color
+        
+        # Watch button cooldown
+        self.watch_cooldown = 0.0  # Seconds remaining before WATCH can be clicked
+        self.WATCH_COOLDOWN_TIME = 10.0  # Cooldown duration in seconds
     
     def _generate_puzzle(self):
         """Generate the sequence."""
         # Generate full sequence upfront
         self.sequence = [random.choice(self.COLORS) for _ in range(self.max_stages)]
         
-        # Start at stage 0
-        self.current_stage = 0
-        self._start_showing()
+        # Start at stage 1 (2 colors), wait for player to press WATCH
+        self.current_stage = 1
+        self.state = self.State.INPUT
+        self.input_index = 0
     
     def _get_mapping(self, flash_color: str) -> str:
         """Get the color to press based on flash color."""
@@ -106,6 +111,10 @@ class RodAlignmentModule(BaseModule):
         if self.solved:
             return
         
+        # Update watch button cooldown
+        if self.watch_cooldown > 0:
+            self.watch_cooldown = max(0, self.watch_cooldown - dt)
+        
         if self.state == self.State.SHOWING:
             self.show_timer += dt
             
@@ -130,27 +139,37 @@ class RodAlignmentModule(BaseModule):
     
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle color button press."""
+        # Check for WATCH button click (at y=9, x=15-24 area)
+        if local_y == 9 and 15 <= local_x <= 24:
+            if self.state == self.State.INPUT and self.watch_cooldown <= 0:
+                self._start_showing()
+                self.watch_cooldown = self.WATCH_COOLDOWN_TIME
+                self.play_sound(SFX.BUTTON_CLICK)
+                return True
+            elif self.watch_cooldown > 0:
+                self.play_sound(SFX.BUTTON_ERROR)
+                return True
+        
         if self.state != self.State.INPUT:
             return False
         
-        # Diamond layout (centered):
-        # Red at top: x=10-16, y=2-3
-        # Green left: x=4-10, y=4-5
-        # Blue right: x=17-23, y=4-5
-        # Yellow bottom: x=10-16, y=6-7
+        # Diamond layout (centered) - each button is 3 chars wide at letter position
+        # Red: center x=14, y=2
+        # Green: center x=8, y=4
+        # Blue: center x=20, y=4
+        # Yellow: center x=14, y=6
         
         pressed_color = None
         
-        if 10 <= local_x <= 16:
-            if 2 <= local_y <= 3:
-                pressed_color = 'red'
-            elif 6 <= local_y <= 7:
-                pressed_color = 'yellow'
-        elif 4 <= local_y <= 5:
-            if 4 <= local_x <= 10:
+        if local_y == 2 and 13 <= local_x <= 15:
+            pressed_color = 'red'
+        elif local_y == 4:
+            if 7 <= local_x <= 9:
                 pressed_color = 'green'
-            elif 17 <= local_x <= 23:
+            elif 19 <= local_x <= 21:
                 pressed_color = 'blue'
+        elif local_y == 6 and 13 <= local_x <= 15:
+            pressed_color = 'yellow'
         
         if pressed_color:
             self._press_color(pressed_color)
@@ -180,46 +199,60 @@ class RodAlignmentModule(BaseModule):
                 if self.current_stage >= self.max_stages:
                     self.solve()
                 else:
-                    # Start next stage
+                    # Start next stage with cooldown
                     self._start_showing()
+                    self.watch_cooldown = self.WATCH_COOLDOWN_TIME
         else:
-            # Wrong color - strike and restart stage
+            # Wrong color - strike and restart stage with cooldown
             self.strike()
             self._start_showing()
+            self.watch_cooldown = self.WATCH_COOLDOWN_TIME
         
         # Clear active color after brief flash (will be cleared in render)
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the diamond of colored buttons."""
-        # Diamond positions (x, y, width, height) - centered
-        # Diamond spans about 21 chars (3+7+4+7), center = (28-21)//2 = 3, but adjust for visual balance
+        # Diamond layout - centered in 28-char panel
+        # Letter positions (center of each button)
+        # Panel center is at x + 14
         buttons = {
-            'red':    (self.x + 10, self.y + 2, 7, 2),
-            'green':  (self.x + 4,  self.y + 4, 7, 2),
-            'blue':   (self.x + 17, self.y + 4, 7, 2),
-            'yellow': (self.x + 10, self.y + 6, 7, 2),
+            'red':    (self.x + 14, self.y + 2),   # Top center
+            'green':  (self.x + 8,  self.y + 4),   # Left
+            'blue':   (self.x + 20, self.y + 4),   # Right
+            'yellow': (self.x + 14, self.y + 6),   # Bottom center
         }
         
-        for color, (bx, by, bw, bh) in buttons.items():
+        for color, (cx, cy) in buttons.items():
             is_active = (self.active_color == color)
             fg_color = self.COLOR_MAP[color]
+            letter = color[0].upper()
             
             if is_active:
-                # Bright/filled when active
-                for dy in range(bh):
-                    buffer.put_string(bx, by + dy, '█' * bw, fg_color)
+                # Lit up - filled box around letter
+                buffer.put_char(cx - 1, cy, '█', fg_color)
+                buffer.put_char(cx, cy, letter, Color.BLACK, fg_color)  # Letter with bg
+                buffer.put_char(cx + 1, cy, '█', fg_color)
             else:
                 # Dim outline when inactive
-                buffer.put_char(bx, by, '[', Color.DARK_GRAY)
-                buffer.put_char(bx + 1, by, color[0].upper(), fg_color)
-                buffer.put_char(bx + 2, by, ']', Color.DARK_GRAY)
+                buffer.put_char(cx - 1, cy, '[', Color.DARK_GRAY)
+                buffer.put_char(cx, cy, letter, fg_color)
+                buffer.put_char(cx + 1, cy, ']', Color.DARK_GRAY)
         
-        # Stage indicator - centered
+        # Stage indicator - centered (4 stages, starting from 2 colors)
         stage_y = self.y + 9
-        buffer.put_string(self.x + 3, stage_y, f"STAGE: {self.current_stage + 1}/{self.max_stages}", Color.LIGHT_CYAN)
+        total_stages = self.max_stages - 1  # 4 stages (skipping 1-color stage)
+        display_stage = min(self.current_stage, total_stages)
+        buffer.put_string(self.x + 3, stage_y, f"STAGE: {display_stage}/{total_stages}", Color.LIGHT_CYAN)
         
-        # State indicator
+        # WATCH button / state indicator
         if self.state == self.State.SHOWING:
-            buffer.put_string(self.x + 17, stage_y, "WATCH", Color.LIGHT_YELLOW)
+            # Currently showing sequence
+            buffer.put_string(self.x + 15, stage_y, "[SHOWING]", Color.LIGHT_YELLOW)
         elif self.state == self.State.INPUT:
-            buffer.put_string(self.x + 17, stage_y, "INPUT", Color.LIGHT_GREEN)
+            if self.watch_cooldown > 0:
+                # Cooldown active - show remaining time
+                cooldown_text = f"[WAIT {int(self.watch_cooldown) + 1}s]"
+                buffer.put_string(self.x + 15, stage_y, cooldown_text, Color.DARK_GRAY)
+            else:
+                # Ready to watch - clickable button
+                buffer.put_string(self.x + 15, stage_y, "[ WATCH ]", Color.LIGHT_GREEN)

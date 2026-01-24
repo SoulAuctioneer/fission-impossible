@@ -156,16 +156,51 @@ class PressureLocksModule(BaseModule):
         self.markers = maze['markers']
         self.walls = maze['walls']
         
-        # Random start and target positions (not on markers)
+        # Random start and target positions (not on markers, must be reachable)
         available = []
         for x in range(6):
             for y in range(6):
                 if (x, y) not in self.markers:
                     available.append((x, y))
         
+        # Try to find a valid start/target pair that are reachable
         random.shuffle(available)
+        for i, start in enumerate(available):
+            for target in available[i+1:]:
+                if self._is_reachable(start, target):
+                    self.player_pos = list(start)
+                    self.target_pos = list(target)
+                    return
+        
+        # Fallback (should never happen with proper mazes)
         self.player_pos = list(available[0])
         self.target_pos = list(available[1])
+    
+    def _is_reachable(self, start: Tuple[int, int], target: Tuple[int, int]) -> bool:
+        """Check if target is reachable from start using BFS."""
+        if start == target:
+            return True
+        
+        visited = {start}
+        queue = [start]
+        
+        while queue:
+            current = queue.pop(0)
+            
+            # Try all four directions
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                next_pos = (current[0] + dx, current[1] + dy)
+                
+                if next_pos in visited:
+                    continue
+                    
+                if self._can_move(current, next_pos):
+                    if next_pos == target:
+                        return True
+                    visited.add(next_pos)
+                    queue.append(next_pos)
+        
+        return False
     
     def _can_move(self, from_pos: Tuple[int, int], to_pos: Tuple[int, int]) -> bool:
         """Check if movement is valid (no wall between cells)."""
@@ -182,19 +217,20 @@ class PressureLocksModule(BaseModule):
     def _handle_click(self, local_x: int, local_y: int) -> bool:
         """Handle arrow button press."""
         # Arrow buttons at bottom (centered)
-        # Up: x=12-14, y=9
-        # Down: x=12-14, y=11
-        # Left: x=8-10, y=10
-        # Right: x=16-18, y=10
+        # Rendered at: arrow_y = 11 (relative to module top)
+        # Up: x=12-14, y=10 (arrow_y - 1)
+        # Left: x=8-10, y=11 (arrow_y)
+        # Right: x=16-18, y=11 (arrow_y)
+        # Down: x=12-14, y=12 (arrow_y + 1)
         
         direction = None
         
         if 12 <= local_x <= 14:
-            if local_y == 9:
+            if local_y == 10:
                 direction = (0, -1)  # Up
-            elif local_y == 11:
+            elif local_y == 12:
                 direction = (0, 1)   # Down
-        elif local_y == 10:
+        elif local_y == 11:
             if 8 <= local_x <= 10:
                 direction = (-1, 0)  # Left
             elif 16 <= local_x <= 18:
@@ -226,13 +262,24 @@ class PressureLocksModule(BaseModule):
     
     def _render_content(self, buffer: "TextBuffer"):
         """Render the maze grid and controls."""
-        # Grid position - centered (6 cells * 2 chars = 12 chars, center = (28-12)//2 = 8)
-        grid_x = self.x + 8
-        grid_y = self.y + 2
+        # Grid position - shifted right to make room for row numbers
+        # Column numbers on top, row numbers on left
+        # Layout: 2 chars for row label + 6 cells * 2 chars = 14 chars
+        # Center = (28-14)//2 = 7, but we start row labels at 7, grid at 9
+        grid_x = self.x + 9
+        grid_y = self.y + 3  # Leave room for column numbers
         cell_size = 2
         
-        # Draw 6x6 grid
+        # Draw column numbers (0-5) across the top
+        for gx in range(6):
+            cx = grid_x + gx * cell_size
+            buffer.put_char(cx, grid_y - 1, str(gx), Color.YELLOW)
+        
+        # Draw 6x6 grid with row numbers
         for gy in range(6):
+            # Row number on the left
+            buffer.put_char(grid_x - 2, grid_y + gy, str(gy), Color.YELLOW)
+            
             for gx in range(6):
                 cx = grid_x + gx * cell_size
                 cy = grid_y + gy
@@ -243,17 +290,17 @@ class PressureLocksModule(BaseModule):
                 is_marker = (gx, gy) in self.markers
                 
                 if is_player:
-                    buffer.put_char(cx, cy, '■', Color.LIGHT_GREEN)
+                    buffer.put_char(cx, cy, '■', Color.LIGHT_GREEN)  # CP437 0xFE
                 elif is_target:
-                    buffer.put_char(cx, cy, '▲', Color.LIGHT_RED)
+                    buffer.put_char(cx, cy, '▲', Color.LIGHT_RED)    # CP437 0x1E
                 elif is_marker:
-                    buffer.put_char(cx, cy, '◙', Color.LIGHT_CYAN)
+                    buffer.put_char(cx, cy, '◙', Color.LIGHT_CYAN)   # CP437 0x0A
                 else:
-                    buffer.put_char(cx, cy, '·', Color.DARK_GRAY)
+                    buffer.put_char(cx, cy, '∙', Color.CYAN)         # CP437 0xF9
         
         # Arrow controls (using CP437-compatible arrows) - centered
         # Arrows span 11 chars ([◄]...[▲]...[►]), center = (28-11)//2 = 8
-        arrow_y = self.y + 10
+        arrow_y = self.y + 11
         buffer.put_string(self.x + 12, arrow_y - 1, "[▲]", Color.LIGHT_GREEN)
         buffer.put_string(self.x + 8, arrow_y, "[<]", Color.LIGHT_GREEN)
         buffer.put_string(self.x + 16, arrow_y, "[>]", Color.LIGHT_GREEN)

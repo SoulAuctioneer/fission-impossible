@@ -23,19 +23,20 @@ class VentCodesModule(BaseModule):
     
     # Symbol columns (from original game, with nuclear-themed symbols)
     # Each column defines the order symbols should be pressed
-    # NOTE: Using CP437-compatible characters for IBM VGA font compatibility
-    # Mapping: ☢→Ω, ★→♦, ◊→♥, ⚡→§, ✱→¤, ℃→°, ◎→◙, ⚠→‼, ∅→φ, ©→©, ⚙→♠
+    # NOTE: Using only CP437-compatible characters for IBM VGA font:
+    # Ω (0xEA), ♦ (0x04), ♥ (0x03), § (0x15), ☼ (0x0F), ± (0xF1),
+    # ° (0xF8), ◙ (0x0A), ‼ (0x13), φ (0xED), ♣ (0x05), ♠ (0x06)
     COLUMNS = [
-        ['Ω', '♦', '♥', '§', '¤', '±', '°'],
+        ['Ω', '♦', '♥', '§', '☼', '±', '°'],
         ['◙', 'Ω', '°', '‼', '♦', '±', 'φ'],
-        ['©', '§', '°', '‼', '¤', '♥', '♦'],
-        ['♠', '‼', 'φ', '¤', '♥', '©', '§'],
-        ['¤', 'φ', '©', '§', '‼', '◙', 'Ω'],
-        ['♠', '◙', 'φ', '♦', '±', '§', '©'],
+        ['♣', '§', '°', '‼', '☼', '♥', '♦'],
+        ['♠', '‼', 'φ', '☼', '♥', '♣', '§'],
+        ['☼', 'φ', '♣', '§', '‼', '◙', 'Ω'],
+        ['♠', '◙', 'φ', '♦', '±', '§', '♣'],
     ]
     
     # All unique symbols (CP437 compatible)
-    ALL_SYMBOLS = ['Ω', '♦', '♥', '§', '¤', '±', '°', '◙', '‼', 'φ', '©', '♠']
+    ALL_SYMBOLS = ['Ω', '♦', '♥', '§', '☼', '±', '°', '◙', '‼', 'φ', '♣', '♠']
     
     def _initialize(self):
         """Initialize module variables."""
