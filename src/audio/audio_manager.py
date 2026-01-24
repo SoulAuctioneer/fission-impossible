@@ -18,6 +18,7 @@ class AudioManager:
         self._sounds: Dict[str, pygame.mixer.Sound] = {}
         self._music_playing = False
         self._muted = False
+        self._music_enabled = True
         self._volume = 0.7
         
         self._initialize()
@@ -81,7 +82,7 @@ class AudioManager:
     
     def play_music(self, filename: str, loop: bool = True):
         """Play background music."""
-        if not self._initialized or self._muted:
+        if not self._initialized or not self._music_enabled:
             return
         
         path = SETTINGS.AUDIO_DIR / "music" / filename
@@ -117,6 +118,26 @@ class AudioManager:
     @property
     def is_muted(self) -> bool:
         return self._muted
+    
+    @property
+    def music_enabled(self) -> bool:
+        """Check if music is enabled."""
+        return self._music_enabled
+    
+    @property
+    def volume(self) -> float:
+        """Get current master volume."""
+        return self._volume
+    
+    def set_music_enabled(self, enabled: bool):
+        """Enable or disable music."""
+        self._music_enabled = enabled
+        if not enabled and self._music_playing:
+            self.stop_music()
+    
+    def set_sfx_enabled(self, enabled: bool):
+        """Enable or disable sound effects."""
+        self._muted = not enabled
     
     def cleanup(self):
         """Clean up audio resources."""

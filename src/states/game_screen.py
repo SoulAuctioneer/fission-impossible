@@ -166,6 +166,12 @@ class GameScreen(BaseState):
         # Reset inactivity timer
         self._inactivity_timer = 0.0
         self._show_exit_training_modal = False
+        
+        # Track current music state for dynamic switching
+        self._current_music = None
+        
+        # Play initial gameplay music (calm)
+        self._update_music()
     
     def _generate_modules(self):
         """Generate and initialize modules with random selection and placement."""
@@ -325,6 +331,9 @@ class GameScreen(BaseState):
         # Update modules (always, but some may be inactive)
         for module in self.modules:
             module.update(dt)
+        
+        # Update music based on current game state
+        self._update_music()
     
     def _update_modal_flash(self, dt: float, interval: float):
         """Update modal border flash timer."""
@@ -381,6 +390,38 @@ class GameScreen(BaseState):
         self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
         from src.states.start_screen import StartScreen
         self.game.state_machine.switch(StartScreen(self.game))
+    
+    def _update_music(self):
+        """Update music based on current game drama level."""
+        # Determine target music based on game state
+        phase = self.game_state.phase
+        
+        if phase == GamePhase.TRAINING:
+            target_music = "gameplay_calm.mp3"
+        elif phase == GamePhase.TRAINING_COMPLETE:
+            target_music = "gameplay_calm.mp3"
+        elif phase == GamePhase.EMERGENCY_WARNING:
+            target_music = "gameplay_critical.mp3"
+        elif phase == GamePhase.REAL_GAME:
+            # Dynamic music based on time and strikes
+            time_remaining = self.game_state.time_remaining
+            strikes = self.game_state.strikes
+            
+            # Critical: under 60 seconds OR 2+ strikes
+            if time_remaining < 60 or strikes >= 2:
+                target_music = "gameplay_critical.mp3"
+            # Tense: under 120 seconds OR 1 strike
+            elif time_remaining < 120 or strikes >= 1:
+                target_music = "gameplay_tense.mp3"
+            else:
+                target_music = "gameplay_calm.mp3"
+        else:
+            target_music = "gameplay_calm.mp3"
+        
+        # Only change music if target is different
+        if target_music != self._current_music:
+            self._current_music = target_music
+            self.game.audio.play_music(target_music)
     
     def _update_real_game(self, dt: float):
         """Update logic for real game phase."""

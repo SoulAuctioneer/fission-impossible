@@ -99,6 +99,8 @@ class Game:
         self.running = True
         self._dt = 0.0
         self._show_exit_modal = False
+        self._show_settings = False
+        self._settings_screen = None
         self._kiosk_mode = SETTINGS.KIOSK_MODE  # Kiosk mode - prevents exit when True
     
     def start(self):
@@ -133,6 +135,16 @@ class Game:
                     self._toggle_kiosk_mode()
                     continue
                 
+                # F7 toggles settings (always available, except during exit modal)
+                if event.key == pygame.K_F7 and not self._show_exit_modal:
+                    self._toggle_settings()
+                    continue
+                
+                # Handle settings screen events first if showing
+                if self._show_settings and self._settings_screen:
+                    self._settings_screen.handle_event(event)
+                    continue
+                
                 # Handle exit confirmation modal
                 if self._show_exit_modal:
                     if event.key in (pygame.K_y, pygame.K_RETURN):
@@ -154,7 +166,13 @@ class Game:
                         self._toggle_fullscreen()
             
             # Don't pass events to state when modal is showing
-            if self._show_exit_modal:
+            if self._show_exit_modal or self._show_settings:
+                # Still update input for mouse position tracking
+                if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
+                    self.input.update()
+                    # Pass mouse events to settings screen if open
+                    if self._show_settings and self._settings_screen:
+                        self._settings_screen.handle_event(event)
                 continue
             
             # Update input handler for mouse events
@@ -168,6 +186,10 @@ class Game:
         """Update game logic."""
         self.input.update()
         self.state_machine.update(dt)
+        
+        # Update settings screen if showing
+        if self._show_settings and self._settings_screen:
+            self._settings_screen.update(dt)
         
         # Update text buffer effects
         self.static_noise.update(dt)
@@ -183,6 +205,10 @@ class Game:
         
         # Render current state to text buffer
         self.state_machine.render(self.buffer)
+        
+        # Render settings screen overlay on top if active
+        if self._show_settings and self._settings_screen:
+            self._settings_screen.render(self.buffer)
         
         # Render exit confirmation modal on top if active
         if self._show_exit_modal:
@@ -234,6 +260,30 @@ class Game:
         self._kiosk_mode = not self._kiosk_mode
         # Play a sound to indicate the mode change
         self.audio.play_sound(SFX.BUTTON_CLICK)
+    
+    def _toggle_settings(self):
+        """Toggle settings screen visibility."""
+        if self._show_settings:
+            self.close_settings()
+        else:
+            self.open_settings()
+    
+    def open_settings(self):
+        """Open the settings screen overlay."""
+        if not self._show_settings:
+            from src.states.settings_screen import SettingsScreen
+            self._settings_screen = SettingsScreen(self)
+            self._settings_screen.enter()
+            self._show_settings = True
+    
+    def close_settings(self):
+        """Close the settings screen overlay."""
+        if self._show_settings:
+            if self._settings_screen:
+                self._settings_screen.exit()
+            self._settings_screen = None
+            self._show_settings = False
+            self.audio.play_sound(SFX.BUTTON_CLICK)
     
     def _render_exit_modal(self):
         """Render the exit confirmation modal overlay."""

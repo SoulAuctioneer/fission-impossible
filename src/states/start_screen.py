@@ -52,6 +52,9 @@ class StartScreen(BaseState):
         """Called when entering this state."""
         # Ensure flicker is at nominal (calm) state for start screen
         self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
+        
+        # Play menu music
+        self.game.audio.play_music("menu_theme.mp3")
     
     def update(self, dt: float):
         """Update start screen."""

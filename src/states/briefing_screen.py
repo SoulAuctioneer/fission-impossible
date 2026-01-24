@@ -33,6 +33,9 @@ class BriefingScreen(BaseState):
         self.elapsed_time = 0.0
         # Maintain nominal (calm) flicker during briefing
         self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_NOMINAL
+        
+        # Play briefing music
+        self.game.audio.play_music("briefing_music.mp3")
     
     def update(self, dt: float):
         """Update briefing screen."""

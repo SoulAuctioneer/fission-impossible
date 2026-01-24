@@ -66,6 +66,12 @@ class EndScreen(BaseState):
         # Set heavy flicker for failure screen (flicker persists from game)
         if not self.victory:
             self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_FAILURE
+        
+        # Play victory or failure music
+        if self.victory:
+            self.game.audio.play_music("victory_fanfare.mp3", loop=False)
+        else:
+            self.game.audio.play_music("failure_doom.mp3", loop=False)
     
     def update(self, dt: float):
         """Update end screen."""
