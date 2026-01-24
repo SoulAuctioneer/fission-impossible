@@ -86,7 +86,7 @@
             padding: 20px;
             background: linear-gradient(135deg, var(--nuclear-yellow) 0%, var(--nuclear-orange) 100%);
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 60px;
             color: var(--dark-gray);
         }
         
@@ -118,8 +118,11 @@
             background: var(--light-gray);
             border-left: 4px solid var(--nuclear-orange);
             padding: 15px;
-            margin-bottom: 15px;
-            page-break-after: always;
+            margin-bottom: 60px;
+        }
+        
+        #intro h3 {
+            margin-top: 60px;
         }
         
         .toc h2 {
@@ -365,10 +368,6 @@
                 padding: 0;
             }
             
-            .toc {
-                page-break-after: always;
-            }
-            
             .section {
                 page-break-inside: avoid;
             }
@@ -457,7 +456,7 @@
         </ul>
     </section>
 
-    <section id="coolant" class="section">
+    <section id="coolant" class="section section-break">
         <h2>2. Coolant Bypass</h2>
         <p>The module displays 3-6 colored pipes. Close <strong>ONE</strong> valve to restore nominal flow.</p>
         
@@ -610,70 +609,53 @@
         <p>Watch the flashing color sequence, then repeat it using the correct color mapping.</p>
         
         <div class="warning">
-            <strong>CRITICAL:</strong> The color you PRESS is different from the color that FLASHED!<br/>
-            The color mapping depends on the number of errors made, shown in the Reactor Status panel.
+            <strong>CRITICAL:</strong> The color you PRESS is different from the color that FLASHED!
         </div>
         
         <h3>If Serial Number Contains a Vowel (A, E, I, O, U)</h3>
         <table>
             <tr>
-                <th>Errors</th>
-                <th>Red Flash</th>
-                <th>Blue Flash</th>
-                <th>Green Flash</th>
-                <th>Yellow Flash</th>
+                <th>Flash Color</th>
+                <th>Press Color</th>
             </tr>
             <tr>
-                <td><strong>0</strong></td>
-                <td><span class="color-box color-blue"></span>Blue</td>
                 <td><span class="color-box color-red"></span>Red</td>
-                <td><span class="color-box color-yellow"></span>Yellow</td>
-                <td><span class="color-box color-green"></span>Green</td>
+                <td><span class="color-box color-blue"></span>Blue</td>
             </tr>
             <tr>
-                <td><strong>1</strong></td>
-                <td><span class="color-box color-yellow"></span>Yellow</td>
-                <td><span class="color-box color-green"></span>Green</td>
                 <td><span class="color-box color-blue"></span>Blue</td>
                 <td><span class="color-box color-red"></span>Red</td>
             </tr>
             <tr>
-                <td><strong>2+</strong></td>
                 <td><span class="color-box color-green"></span>Green</td>
-                <td><span class="color-box color-red"></span>Red</td>
                 <td><span class="color-box color-yellow"></span>Yellow</td>
-                <td><span class="color-box color-blue"></span>Blue</td>
+            </tr>
+            <tr>
+                <td><span class="color-box color-yellow"></span>Yellow</td>
+                <td><span class="color-box color-green"></span>Green</td>
             </tr>
         </table>
         
         <h3>If Serial Number Does NOT Contain a Vowel</h3>
         <table>
             <tr>
-                <th>Errors</th>
-                <th>Red Flash</th>
-                <th>Blue Flash</th>
-                <th>Green Flash</th>
-                <th>Yellow Flash</th>
+                <th>Flash Color</th>
+                <th>Press Color</th>
             </tr>
             <tr>
-                <td><strong>0</strong></td>
-                <td><span class="color-box color-blue"></span>Blue</td>
-                <td><span class="color-box color-yellow"></span>Yellow</td>
-                <td><span class="color-box color-green"></span>Green</td>
-                <td><span class="color-box color-red"></span>Red</td>
-            </tr>
-            <tr>
-                <td><strong>1</strong></td>
                 <td><span class="color-box color-red"></span>Red</td>
                 <td><span class="color-box color-blue"></span>Blue</td>
+            </tr>
+            <tr>
+                <td><span class="color-box color-blue"></span>Blue</td>
                 <td><span class="color-box color-yellow"></span>Yellow</td>
+            </tr>
+            <tr>
+                <td><span class="color-box color-green"></span>Green</td>
                 <td><span class="color-box color-green"></span>Green</td>
             </tr>
             <tr>
-                <td><strong>2+</strong></td>
                 <td><span class="color-box color-yellow"></span>Yellow</td>
-                <td><span class="color-box color-green"></span>Green</td>
-                <td><span class="color-box color-blue"></span>Blue</td>
                 <td><span class="color-box color-red"></span>Red</td>
             </tr>
         </table>

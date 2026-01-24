@@ -40,19 +40,11 @@ class RodAlignmentModule(BaseModule):
         'yellow': Color.LIGHT_YELLOW,
     }
     
-    # Color mapping tables based on serial vowel and strike count
-    # Format: {has_vowel: {strike_count: {flash_color: press_color}}}
+    # Color mapping tables based on serial vowel only
+    # Format: {has_vowel: {flash_color: press_color}}
     MAPPINGS = {
-        True: {  # Serial has vowel
-            0: {'red': 'blue', 'blue': 'red', 'green': 'yellow', 'yellow': 'green'},
-            1: {'red': 'yellow', 'blue': 'green', 'green': 'blue', 'yellow': 'red'},
-            2: {'red': 'green', 'blue': 'red', 'green': 'yellow', 'yellow': 'blue'},
-        },
-        False: {  # Serial has no vowel
-            0: {'red': 'blue', 'blue': 'yellow', 'green': 'green', 'yellow': 'red'},
-            1: {'red': 'red', 'blue': 'blue', 'green': 'yellow', 'yellow': 'green'},
-            2: {'red': 'yellow', 'blue': 'green', 'green': 'blue', 'yellow': 'red'},
-        },
+        True: {'red': 'blue', 'blue': 'red', 'green': 'yellow', 'yellow': 'green'},  # Serial has vowel
+        False: {'red': 'blue', 'blue': 'yellow', 'green': 'green', 'yellow': 'red'},  # Serial has no vowel
     }
     
     class State(Enum):
@@ -98,9 +90,8 @@ class RodAlignmentModule(BaseModule):
     def _get_mapping(self, flash_color: str) -> str:
         """Get the color to press based on flash color."""
         has_vowel = self.game_state.edgework.has_vowel_in_serial()
-        strikes = min(self.game_state.strikes, 2)  # Cap at 2 for mapping table
         
-        mapping = self.MAPPINGS[has_vowel][strikes]
+        mapping = self.MAPPINGS[has_vowel]
         return mapping.get(flash_color, flash_color)
     
     def _start_showing(self):
@@ -249,17 +240,16 @@ class RodAlignmentModule(BaseModule):
         for color, (cx, cy) in buttons.items():
             is_active = (self.active_color == color)
             fg_color = self.COLOR_MAP[color]
-            letter = color[0].upper()
             
             if is_active:
-                # Lit up - filled box around letter
+                # Lit up - bright solid blocks
                 buffer.put_char(cx - 1, cy, '█', fg_color)
-                buffer.put_char(cx, cy, letter, Color.BLACK, fg_color)  # Letter with bg
+                buffer.put_char(cx, cy, '█', fg_color)
                 buffer.put_char(cx + 1, cy, '█', fg_color)
             else:
-                # Dim outline when inactive
+                # Dim outline with solid color block inside
                 buffer.put_char(cx - 1, cy, '[', Color.DARK_GRAY)
-                buffer.put_char(cx, cy, letter, fg_color)
+                buffer.put_char(cx, cy, '█', fg_color)
                 buffer.put_char(cx + 1, cy, ']', Color.DARK_GRAY)
         
         # Stage indicator - centered (4 stages, starting from 2 colors)
