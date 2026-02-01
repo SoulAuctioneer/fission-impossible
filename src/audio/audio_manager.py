@@ -81,7 +81,7 @@ class AudioManager:
     
     def load_all_sounds(self) -> int:
         """
-        Load all sound effects defined in SFX.ALL.
+        Load all sound effects defined in SFX.ALL and pad sounds for modules.
         
         Returns:
             Number of sounds successfully loaded.
@@ -91,7 +91,63 @@ class AudioManager:
             if self.load_sound(name):
                 loaded += 1
         print(f"Loaded {loaded}/{len(SFX.ALL)} sound effects")
+        pad_loaded = self.load_pad_sounds(list(range(48, 73)))  # C3–C5 (MIDI 48–72)
+        if pad_loaded > 0:
+            print(f"Loaded {pad_loaded} pad sounds")
         return loaded
+
+    def load_pad_sounds(self, midi_notes: list) -> int:
+        """
+        Load pad samples from assets/audio/pads/ for the given MIDI note range.
+        Files named pad_48.mp3, pad_49.mp3, etc. Stored under key "pad_48", etc.
+        Also tries to load a single "pad.mp3" fallback for any note.
+        """
+        if not self._initialized:
+            return 0
+        pads_dir = SETTINGS.AUDIO_DIR / "pads"
+        if not pads_dir.exists():
+            return 0
+        loaded = 0
+        for midi in midi_notes:
+            name = f"pad_{midi}"
+            for ext in (".wav", ".mp3"):
+                path = pads_dir / f"pad_{midi}{ext}"
+                if path.exists():
+                    try:
+                        self._sounds[name] = pygame.mixer.Sound(str(path))
+                        loaded += 1
+                    except Exception as e:
+                        print(f"Failed to load pad pad_{midi}{ext}: {e}")
+                    break
+        for fallback_name in ("pad.wav", "pad.mp3"):
+            fallback = pads_dir / fallback_name
+            if fallback.exists() and "pad_fallback" not in self._sounds:
+                try:
+                    self._sounds["pad_fallback"] = pygame.mixer.Sound(str(fallback))
+                    loaded += 1
+                except Exception as e:
+                    print(f"Failed to load pad fallback: {e}")
+                break
+        return loaded
+
+    def play_pad(self, midi_note: int, volume: float = None):
+        """
+        Play a pad sound for the given MIDI note.
+        Uses "pad_{midi_note}" if loaded; otherwise "pad_fallback" if present.
+        """
+        if not self._initialized or self._muted:
+            return
+        name = f"pad_{midi_note}"
+        if name in self._sounds:
+            sound = self._sounds[name]
+            vol = volume if volume is not None else self._volume
+            sound.set_volume(vol)
+            sound.play()
+        elif "pad_fallback" in self._sounds:
+            sound = self._sounds["pad_fallback"]
+            vol = volume if volume is not None else self._volume
+            sound.set_volume(vol)
+            sound.play()
     
     def play_sound(self, name: str, volume: float = None):
         """Play a sound effect."""

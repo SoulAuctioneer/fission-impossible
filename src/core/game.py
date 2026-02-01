@@ -7,6 +7,7 @@ from typing import Optional
 from src.core.settings import SETTINGS
 from src.core.state_machine import StateMachine
 from src.core.input import InputHandler
+from src.core.midi_input import MidiInput
 from src.terminal.text_buffer import TextBuffer
 from src.terminal.font_renderer import FontRenderer
 from src.terminal.colors import ANSI_COLORS, Color
@@ -53,6 +54,7 @@ class Game:
         # Systems
         self.clock = pygame.time.Clock()
         self.input = InputHandler()
+        self.midi_input = MidiInput()
         
         # CRT post-processing effects (pixel-level)
         self.crt_processor = CRTPostProcessor(
@@ -123,6 +125,7 @@ class Game:
     
     def _handle_events(self):
         """Process pygame events."""
+        self.midi_input.poll()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 # Block window close in kiosk mode
@@ -238,6 +241,7 @@ class Game:
     
     def _cleanup(self):
         """Clean up resources on exit."""
+        self.midi_input.close()
         self.audio.cleanup()
         pygame.quit()
     

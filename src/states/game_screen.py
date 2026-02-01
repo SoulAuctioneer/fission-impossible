@@ -57,6 +57,7 @@ from src.states.base_state import BaseState
 from src.terminal.box_drawing import draw_box, draw_titled_box, DOUBLE, SINGLE
 from src.terminal.colors import Color
 from src.core.input import pixel_to_char
+from src.core.events import MIDI_NOTE_ON, MIDI_NOTE_OFF
 from src.core.game_state import GameState, GamePhase
 from src.utils.edgework import generate_edgework
 from src.ui.reactor_status import ReactorStatusPanel
@@ -68,6 +69,8 @@ from src.modules.emergency_override import EmergencyOverrideModule
 from src.modules.vent_codes import VentCodesModule
 from src.modules.rod_alignment import RodAlignmentModule
 from src.modules.pressure_locks import PressureLocksModule
+from src.modules.piano_module import PianoModule
+from src.modules.resonance_chamber import ResonanceChamberModule
 from src.audio.audio_manager import SFX
 from src.core.settings import SETTINGS
 
@@ -126,6 +129,7 @@ class GameScreen(BaseState):
         self._occupied_positions: Set[int] = set()  # Track which grid positions have modules
         self._disabled_positions: Set[int] = set()  # Positions with disabled (training) modules
         self._training_module_idx: int = 0  # Index in self.modules of the training module
+        self._training_module_original_pos: Optional[Tuple[int, int]] = None  # Original position for restoration
         
         # Timer tick tracking (for playing tick sound each second)
         self._last_tick_second: int = -1
@@ -193,9 +197,11 @@ class GameScreen(BaseState):
             (RodAlignmentModule, "ROD ALIGNMENT"),
             (PressureLocksModule, "PRESSURE LOCKS"),
             (SecurityTerminalModule, "SECURITY TERMINAL"),
+            (PianoModule, "REACTOR TUNE"),
+            (ResonanceChamberModule, "RESONANCE CHAMBER"),
         ]
         
-        # Randomly select 4 modules from the 6 available
+        # Randomly select 4 modules from the available types
         selected_modules = random.sample(all_module_types, 4)
         
         # Randomly select 4 positions from the 6 available
@@ -205,10 +211,12 @@ class GameScreen(BaseState):
         self._occupied_positions: Set[int] = set(selected_position_indices)
         
         # Pick one module to be the training module
-        # IMPORTANT: Emergency Override requires the timer, so it cannot be the training module
+        # Emergency Override requires the timer; Reactor Tune requires MIDI keyboard
         valid_training_indices = [
             i for i, (module_class, _) in enumerate(selected_modules)
             if module_class != EmergencyOverrideModule
+            and (module_class != PianoModule or self.game.midi_input.is_connected)
+            and (module_class != ResonanceChamberModule or self.game.midi_input.is_connected)
         ]
         self._training_module_idx = random.choice(valid_training_indices) if valid_training_indices else 0
         
@@ -235,6 +243,11 @@ class GameScreen(BaseState):
         # After training, all 4 will count (minus the one already solved)
         self.game_state.modules_total = 1  # Start with just training module
         self.game_state.training_module_index = self._training_module_idx
+        
+        # Store original position of training module and center it
+        training_module = self.modules[self._training_module_idx]
+        self._training_module_original_pos = (training_module.x, training_module.y)
+        self._center_training_module()
     
     def _on_module_strike(self):
         """Handle module strike."""
@@ -249,7 +262,8 @@ class GameScreen(BaseState):
         self.game.audio.play_sound(SFX.MODULE_SOLVED)
         
         if self.game_state.phase == GamePhase.TRAINING:
-            # Training module completed - transition to TRAINING_COMPLETE
+            # Training module completed - restore position and transition to TRAINING_COMPLETE
+            self._restore_training_module_position()
             self.game_state.modules_solved = 1
             self.game_state.set_phase(GamePhase.TRAINING_COMPLETE)
             self._phase_timer = 0.0
@@ -363,6 +377,25 @@ class GameScreen(BaseState):
         
         # Heavy flicker
         self.game.screen_flicker.intensity = SETTINGS.EFFECT_FLICKER_2_STRIKES
+    
+    def _center_training_module(self):
+        """Center the training module on screen during training."""
+        if self._training_module_original_pos is None:
+            return
+        training_module = self.modules[self._training_module_idx]
+        # Center on screen (buffer dimensions from SETTINGS)
+        from src.core.settings import SETTINGS
+        centered_x = (SETTINGS.COLS - self.MODULE_WIDTH) // 2
+        centered_y = (SETTINGS.ROWS - self.MODULE_HEIGHT) // 2
+        training_module.x = centered_x
+        training_module.y = centered_y
+    
+    def _restore_training_module_position(self):
+        """Restore training module to its original position after training."""
+        if self._training_module_original_pos is None:
+            return
+        training_module = self.modules[self._training_module_idx]
+        training_module.x, training_module.y = self._training_module_original_pos
     
     def _start_real_game(self):
         """Transition to real game - unlock modules and start timer."""
@@ -503,12 +536,28 @@ class GameScreen(BaseState):
             self._show_exit_training_modal = True
             return
         
-        # Handle module events
+        # Handle MIDI events (no mouse coords) - pass to all modules; only MIDI module reacts
+        if event.type in (MIDI_NOTE_ON, MIDI_NOTE_OFF):
+            if self.game_state.phase == GamePhase.TRAINING:
+                training_module = self.modules[self._training_module_idx]
+                training_module.handle_event(event, 0, 0)
+            else:
+                for module in self.modules:
+                    module.handle_event(event, 0, 0)
+            return
+
+        # Handle module events (mouse)
         if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
             cx, cy = pixel_to_char(*event.pos)
             
-            for module in self.modules:
-                module.handle_event(event, cx, cy)
+            # During training, only process the training module
+            if self.game_state.phase == GamePhase.TRAINING:
+                training_module = self.modules[self._training_module_idx]
+                training_module.handle_event(event, cx, cy)
+            else:
+                # Normal game - process all modules
+                for module in self.modules:
+                    module.handle_event(event, cx, cy)
     
     def _get_outer_border_color(self) -> int:
         """Get outer border color based on game phase, strikes, and time."""
@@ -545,13 +594,19 @@ class GameScreen(BaseState):
         """Render the game screen."""
         buffer.clear()
         
+        phase = self.game_state.phase
+        
+        # During training, show only the training module (centered)
+        if phase == GamePhase.TRAINING:
+            self._render_training_only(buffer)
+            return
+        
         # Main border - color changes based on danger level
         border_color = self._get_outer_border_color()
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, border_color)
         
         # Header - changes based on phase
-        phase = self.game_state.phase
-        if phase == GamePhase.TRAINING or phase == GamePhase.TRAINING_COMPLETE:
+        if phase == GamePhase.TRAINING_COMPLETE:
             header = "████  NÜCLEAR SOLUTIONS - TRAINING SIMULATION  ████"
             header_color = Color.LIGHT_CYAN
         elif phase == GamePhase.EMERGENCY_WARNING:
@@ -578,6 +633,24 @@ class GameScreen(BaseState):
             self._render_emergency_warning_modal(buffer)
         
         # Render exit training confirmation modal
+        if self._show_exit_training_modal:
+            self._render_exit_training_modal(buffer)
+    
+    def _render_training_only(self, buffer: "TextBuffer"):
+        """Render only the training module, centered on screen during training phase."""
+        # Main border - green for training
+        border_color = Color.GREEN
+        draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, border_color)
+        
+        # Simplified header
+        header = "████  NÜCLEAR SOLUTIONS - TRAINING SIMULATION  ████"
+        buffer.put_string_centered(1, header, Color.LIGHT_CYAN)
+        
+        # Render the training module (already centered in _center_training_module)
+        training_module = self.modules[self._training_module_idx]
+        training_module.render(buffer)
+        
+        # Render exit training confirmation modal if shown
         if self._show_exit_training_modal:
             self._render_exit_training_modal(buffer)
     

@@ -11,9 +11,10 @@ def generate_serial_number() -> str:
     """
     Generate a random serial number.
     Format: 2 letters, 1 digit, 2 letters, 1 digit (e.g., AB3CD5)
+    Excludes 'I' and '1' to avoid confusion.
     """
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    digits = "0123456789"
+    letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"  # Exclude 'I'
+    digits = "023456789"  # Exclude '1'
     
     return (
         random.choice(letters) +
