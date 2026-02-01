@@ -49,6 +49,7 @@ class ResonanceChamberModule(BaseModule):
         self._bar_timer = 0.0
         self._last_slot_per_bar: List[int] = []  # last triggered note slot per bar
         self._note_interval_per_bar: List[float] = []  # BAR_LENGTH / len(bar)
+        self._last_played_note: Optional[int] = None  # last note pressed by player (for display)
 
     def _generate_puzzle(self):
         """Generate four bars of 2- or 4-note patterns."""
@@ -65,6 +66,7 @@ class ResonanceChamberModule(BaseModule):
         self.current_round = 0
         self.input_index = 0
         self._bar_timer = 0.0
+        self._last_played_note = None
 
     def _get_playing_bars(self) -> List[int]:
         """Bars that should be playing (completed + current)."""
@@ -100,6 +102,8 @@ class ResonanceChamberModule(BaseModule):
             buffer.put_string(x, y + 3, "Pattern:", Color.DARK_GRAY)
             buffer.put_string(x, y + 4, names, Color.LIGHT_GREEN)
             buffer.put_string(x, y + 5, f"Match: {self.input_index}/{len(pattern)}", Color.DARK_GRAY)
+        last_note_str = NOTE_NAMES.get(self._last_played_note, "---") if self._last_played_note is not None else "---"
+        buffer.put_string(x, y + 6, f"Playing: {last_note_str}", Color.LIGHT_YELLOW)
         buffer.put_string(x, y + 7, "Bars: [1][2][3][4]", Color.DARK_GRAY)
         for i in range(4):
             cx = x + 7 + i * 4
@@ -124,6 +128,7 @@ class ResonanceChamberModule(BaseModule):
             if velocity == 0:
                 return
             note = getattr(event, "note", -1)
+            self._last_played_note = note  # show what the player is playing
             if self.solved or not self.active:
                 return
             if self.current_round >= NUM_ROUNDS:

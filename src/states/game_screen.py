@@ -204,21 +204,19 @@ class GameScreen(BaseState):
         # Randomly select 4 modules from the available types
         selected_modules = random.sample(all_module_types, 4)
         
+        # TEMPORARY: Force training module to be Resonance Chamber for easy MIDI testing
+        rc_idx = next((i for i, (cls, _) in enumerate(selected_modules) if cls == ResonanceChamberModule), None)
+        if rc_idx is not None:
+            self._training_module_idx = rc_idx
+        else:
+            selected_modules[0] = (ResonanceChamberModule, "RESONANCE CHAMBER")
+            self._training_module_idx = 0
+        
         # Randomly select 4 positions from the 6 available
         selected_position_indices = random.sample(range(6), 4)
         
         # Track which positions have modules (for blanking plate rendering)
         self._occupied_positions: Set[int] = set(selected_position_indices)
-        
-        # Pick one module to be the training module
-        # Emergency Override requires the timer; Reactor Tune requires MIDI keyboard
-        valid_training_indices = [
-            i for i, (module_class, _) in enumerate(selected_modules)
-            if module_class != EmergencyOverrideModule
-            and (module_class != PianoModule or self.game.midi_input.is_connected)
-            and (module_class != ResonanceChamberModule or self.game.midi_input.is_connected)
-        ]
-        self._training_module_idx = random.choice(valid_training_indices) if valid_training_indices else 0
         
         # Track disabled module positions (all except training module during training)
         self._disabled_positions: Set[int] = set()
