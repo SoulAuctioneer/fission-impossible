@@ -506,9 +506,15 @@ class GameScreen(BaseState):
         # Handle module events
         if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
             cx, cy = pixel_to_char(*event.pos)
-            
-            for module in self.modules:
-                module.handle_event(event, cx, cy)
+
+            # During training, only route input to the training module
+            if self.game_state.phase == GamePhase.TRAINING and self.modules:
+                training_idx = self.game_state.training_module_index
+                if 0 <= training_idx < len(self.modules):
+                    self.modules[training_idx].handle_event(event, cx, cy)
+            else:
+                for module in self.modules:
+                    module.handle_event(event, cx, cy)
     
     def _get_outer_border_color(self) -> int:
         """Get outer border color based on game phase, strikes, and time."""
@@ -544,11 +550,11 @@ class GameScreen(BaseState):
     def render(self, buffer: "TextBuffer"):
         """Render the game screen."""
         buffer.clear()
-        
+
         # Main border - color changes based on danger level
         border_color = self._get_outer_border_color()
         draw_box(buffer, 0, 0, buffer.width, buffer.height, DOUBLE, border_color)
-        
+
         # Header - changes based on phase
         phase = self.game_state.phase
         if phase == GamePhase.TRAINING or phase == GamePhase.TRAINING_COMPLETE:
@@ -561,15 +567,19 @@ class GameScreen(BaseState):
             header = "████  NÜCLEAR SOLUTIONS - MAINTENANCE ROOM 7-G  ████"
             header_color = Color.LIGHT_GREEN
         buffer.put_string_centered(1, header, header_color)
-        
-        # Render module grid (left side)
-        self._render_modules(buffer)
-        
-        # Render reactor status panel (right side)
-        self.status_panel.render(buffer, self.game_state)
-        
-        # Render edgework panel (bottom)
-        self.edgework_panel.render(buffer, self.game_state)
+
+        # During training, hide the rest of the UI and show only the training module
+        if phase == GamePhase.TRAINING:
+            self._render_training_focus(buffer)
+        else:
+            # Render module grid (left side)
+            self._render_modules(buffer)
+
+            # Render reactor status panel (right side)
+            self.status_panel.render(buffer, self.game_state)
+
+            # Render edgework panel (bottom)
+            self.edgework_panel.render(buffer, self.game_state)
         
         # Render phase-specific modals on top
         if phase == GamePhase.TRAINING_COMPLETE:
@@ -580,7 +590,17 @@ class GameScreen(BaseState):
         # Render exit training confirmation modal
         if self._show_exit_training_modal:
             self._render_exit_training_modal(buffer)
-    
+
+    def _render_training_focus(self, buffer: "TextBuffer"):
+        """Render only the training module during the training phase."""
+        if not self.modules:
+            return
+
+        training_idx = self.game_state.training_module_index
+        if 0 <= training_idx < len(self.modules):
+            training_module = self.modules[training_idx]
+            training_module.render(buffer)
+
     def _render_modules(self, buffer: "TextBuffer"):
         """Render the 2x3 module grid with blanking plates for empty slots."""
         # Render actual modules

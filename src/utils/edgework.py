@@ -10,18 +10,20 @@ from src.core.game_state import Edgework
 def generate_serial_number() -> str:
     """
     Generate a random serial number.
-    Format: 2 letters, 1 digit, 2 letters, 1 digit (e.g., AB3CD5)
+    Format: 2 letters, 1 digit, 2 letters, 1 digit (e.g., AB3CD5).
+    Excludes 'I' and '1' to avoid confusion.
     """
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    digits = "0123456789"
-    
+    # Exclude visually ambiguous characters
+    letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ"  # No 'I'
+    digits = "023456789"  # No '1'
+
     return (
-        random.choice(letters) +
-        random.choice(letters) +
-        random.choice(digits) +
-        random.choice(letters) +
-        random.choice(letters) +
-        random.choice(digits)
+        random.choice(letters)
+        + random.choice(letters)
+        + random.choice(digits)
+        + random.choice(letters)
+        + random.choice(letters)
+        + random.choice(digits)
     )
 
 

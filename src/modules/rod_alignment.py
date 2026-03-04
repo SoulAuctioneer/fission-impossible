@@ -55,8 +55,9 @@ class RodAlignmentModule(BaseModule):
     def _initialize(self):
         """Initialize module variables."""
         self.sequence: List[str] = []  # The full sequence to complete
-        self.current_stage = 0  # Current stage (0-4)
-        self.max_stages = 5
+        self.current_stage = 0  # Current stage (0-3)
+        # Four steps in the underlying sequence, presented as 3 playable stages
+        self.max_stages = 4
         
         # Playback state
         self.state = self.State.IDLE
@@ -252,9 +253,9 @@ class RodAlignmentModule(BaseModule):
                 buffer.put_char(cx, cy, '█', fg_color)
                 buffer.put_char(cx + 1, cy, ']', Color.DARK_GRAY)
         
-        # Stage indicator - centered (4 stages, starting from 2 colors)
+        # Stage indicator - centered (3 stages, starting from 2 colors)
         stage_y = self.y + 9
-        total_stages = self.max_stages - 1  # 4 stages (skipping 1-color stage)
+        total_stages = self.max_stages - 1  # 3 stages (skipping 1-color stage)
         display_stage = min(self.current_stage, total_stages)
         # Flash white when stage advances
         stage_color = Color.WHITE if self.stage_flash_timer > 0 else Color.LIGHT_CYAN

@@ -5,6 +5,18 @@ A "Keep Talking and Nobody Explodes"-style cooperative bomb defusal game with a 
 ## Quick Start
 
 ```bash
+# Create and activate virtual environment
+python -m venv venv
+
+# On Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+# On Windows (Command Prompt):
+# venv\Scripts\activate.bat
+
+# On macOS/Linux:
+# source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 

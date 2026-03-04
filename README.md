@@ -48,6 +48,18 @@ Fission Impossible is a local multiplayer communication game inspired by *Keep T
 # Clone or download the repository
 cd fission-impossible
 
+# Create and activate virtual environment
+python -m venv venv
+
+# On Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+# On Windows (Command Prompt):
+# venv\Scripts\activate.bat
+
+# On macOS/Linux:
+# source venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 
